@@ -1,0 +1,23 @@
+package msgo
+
+import (
+	"log"
+	"os"
+)
+
+var (
+	Debug *log.Logger
+	Log   *log.Logger
+	Error *log.Logger
+)
+
+func init() {
+	format := log.Ldate | log.Ltime | log.Lshortfile
+	Debug = log.New(os.Stdout, "[DEBUG]: ", format|log.Llongfile)
+	Log = log.New(os.Stdout, "[INFO]: ", format)
+	Error = log.New(os.Stderr, "[ERROR]: ", format|log.Llongfile)
+}
+
+func EnableDebug() {
+
+}

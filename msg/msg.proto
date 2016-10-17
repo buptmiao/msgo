@@ -1,0 +1,38 @@
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option (gogoproto.unmarshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.marshaler_all) = true;
+
+// protoc --gogofaster_out=. -I. -I${GOPATH}/src  -I${GOPATH}/src/github.com/gogo/protobuf/protobuf msg.proto
+
+enum MessageType {
+    Subscribe = 0;
+    Publish = 1;
+    UnSubscribe = 2;
+    Ack = 3;
+    Heartbeat = 4;
+    Error = 5;
+}
+
+enum PublishType {
+    DirectType = 0;
+    FanoutType = 1;
+}
+
+message Message{
+    optional uint64 msg_id = 1 [(gogoproto.nullable) = false];
+    optional MessageType type = 2 [(gogoproto.nullable) = false];
+    optional string topic = 3 [(gogoproto.nullable) = false];
+    optional string filter = 4 [(gogoproto.nullable) = false];
+    optional bytes body = 5 [(gogoproto.nullable) = true];
+    optional int64 timestamp = 6 [(gogoproto.nullable) = false];
+    optional PublishType pubType = 7 [(gogoproto.nullable) = false];
+    optional int64 count = 8 [(gogoproto.nullable) = false];
+    optional bool persist = 9 [(gogoproto.nullable) = false];
+    optional bool need_ack = 10 [(gogoproto.nullable) = false];
+}
+
+message MessageList {
+    repeated Message msgs = 1;
+}
