@@ -1,4 +1,4 @@
-package msgo
+package broker
 
 import (
 	"net/http"

@@ -13,48 +13,15 @@ type Proto interface {
 }
 
 func Unmarshal(r io.Reader) (*Message, error) {
-	res := new(Message)
-
-	buf := make([]byte, 4)
-	if _, err := io.ReadFull(r, buf); err != nil {
-		log.Fatalln(err)
-		return nil, err
-	}
-
-	size := binary.BigEndian.Uint32(buf)
-	buf = make([]byte, size)
-
-	if _, err := io.ReadFull(r, buf); err != nil {
-		log.Fatalln(err)
-		return nil, err
-	}
-
-	err := res.Unmarshal(buf)
+	msgs, err := BatchUnmarshal(r)
 	if err != nil {
-		log.Fatalln(err)
 		return nil, err
 	}
-
-	return res, nil
+	return msgs.Msgs[0], nil
 }
 
 func Marshal(msg *Message, w io.Writer) error {
-	size := msg.Size()
-	buf := make([]byte, size + 4)
-
-	n, err := msg.MarshalTo(buf[4:])
-
-	if err != nil {
-		log.Fatalln(err)
-		return err
-	}
-	binary.BigEndian.PutUint32(buf[0:4], uint32(n))
-
-	_, err = w.Write(buf[:n+4])
-	if err != nil {
-		log.Fatalln(err)
-	}
-	return err
+	return BatchMarshal(PackageMsgs(msg), w)
 }
 
 func BatchUnmarshal(r io.Reader) (*MessageList, error) {
@@ -62,7 +29,6 @@ func BatchUnmarshal(r io.Reader) (*MessageList, error) {
 
 	buf := make([]byte, 4)
 	if _, err := io.ReadFull(r, buf); err != nil {
-		log.Fatalln(err)
 		return nil, err
 	}
 
@@ -70,13 +36,11 @@ func BatchUnmarshal(r io.Reader) (*MessageList, error) {
 	buf = make([]byte, size)
 
 	if _, err := io.ReadFull(r, buf); err != nil {
-		log.Fatalln(err)
 		return nil, err
 	}
 
 	err := res.Unmarshal(buf)
 	if err != nil {
-		log.Fatalln(err)
 		return nil, err
 	}
 
@@ -90,23 +54,25 @@ func BatchMarshal(msgs *MessageList, w io.Writer) error {
 	n, err := msgs.MarshalTo(buf[4:])
 
 	if err != nil {
-		log.Fatalln(err)
 		return err
 	}
 	binary.BigEndian.PutUint32(buf[0:4], uint32(n))
 
 	_, err = w.Write(buf[:n+4])
 	if err != nil {
-		log.Fatalln(err)
+		log.Println(err, 2)
 	}
 	return err
 }
 
+func PackageMsgs(m ...*Message) *MessageList {
+	res := &MessageList{}
+	res.Msgs = m
+	return res
+}
 
-
-func NewAckMsg(topic string) *Message {
+func NewAckMsg() *Message {
 	return &Message{
-		Topic : topic,
 		Type  : MessageType_Ack,
 	}
 }

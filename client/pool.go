@@ -56,8 +56,7 @@ func (c *Conn) Close() error {
 	return c.c.Close()
 }
 
-
-// This is the definition of Connect pool
+// the definition of Connect pool
 //
 //
 //
@@ -108,7 +107,7 @@ func (p *ConnPool) Get() (*Conn, error) {
 		return nil, ErrTimeout
 	}
 	if c := p.popIdle(); c != nil {
-		return c
+		return c, nil
 	}
 	c, err := newConn(p)
 	if err != nil {

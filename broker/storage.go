@@ -1,4 +1,4 @@
-package msgo
+package broker
 
 import (
 
@@ -10,7 +10,6 @@ import (
 	"sync/atomic"
 	"bytes"
 	"os"
-	"sync"
 )
 
 //type Storage interface {
@@ -28,7 +27,6 @@ type StableStorage struct {
 	db *bolt.DB
 	lastkey []byte
 	size int64
-	cond sync.Cond
 }
 
 func NewStable() *StableStorage {
@@ -55,13 +53,11 @@ func NewStable() *StableStorage {
 
 func (s *StableStorage) Save(m *msg.Message) error {
 	atomic.AddInt64(&s.size, 1)
-	// notify msg Loop
-	s.cond.Signal()
 
 	return s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("msgo"))
-		//id, _ := b.NextSequence()
-		m.MsgId = uint64(s.size)
+		id, _ := b.NextSequence()
+		m.MsgId = uint64(id)
 		buf, err := m.Marshal()
 		if err != nil {
 			return err

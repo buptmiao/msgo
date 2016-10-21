@@ -1,9 +1,8 @@
-package msgo
+package broker
 
 import (
 	"net"
 	"sync"
-	"sync/atomic"
 )
 
 const(
@@ -36,12 +35,12 @@ func NewBroker() {
 	broker := new(Broker)
 
 	var err error
-	broker.msg, err = net.Listen("tcp", Config.MsgAddr)
+	broker.msg, err = net.Listen("tcp", PortToLocalAddr(Config.MsgPort))
 	if err != nil {
 		panic(err.Error())
 	}
 
-	broker.http, err = net.Listen("tcp", Config.HttpAddr)
+	broker.http, err = net.Listen("tcp", PortToLocalAddr(Config.HttpPort))
 	if err != nil {
 		panic(err.Error())
 	}
@@ -109,27 +108,18 @@ func (b *Broker) Delete(topic string) {
 }
 
 // handle stable msgs
-func (b *Broker) StableLoop() {
-
+func (b *Broker) Replay() {
 	for {
-		// to reduce block so use a atomic, when size <= 0,
-		//
-		for atomic.LoadInt64(&b.stable.size) <= 0 {
-			b.stable.cond.Wait()
+		if b.status == STOP {
+			return
 		}
-		for {
-			if b.status == STOP {
-				return
-			}
-			// it may block here
-			m, err := b.stable.Get()
-			if err != nil {
-				Error.Println(err)
-				break
-			}
-			topic := b.Get(m.GetTopic())
-			topic.Push(m)
+		// it may block here
+		m, err := b.stable.Get()
+		if err != nil {
+			Error.Println(err)
+			break
 		}
-
+		topic := b.Get(m.GetTopic())
+		topic.Push(m)
 	}
 }

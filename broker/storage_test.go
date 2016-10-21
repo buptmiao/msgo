@@ -1,4 +1,4 @@
-package msgo_test
+package broker_test
 
 import (
 	"testing"
