@@ -39,7 +39,7 @@ func (p *Producer) publish(topic string, filter string, typ int32, body []byte, 
 		Persist: persist,
 		NeedAck: needAck,
 	}
-	err = msg.BatchMarshal(msg.PackageMsgs(m), c.c)
+	err = msg.BatchMarshal(msg.PackageMsgs(m), c)
 	if err != nil || !needAck{
 		log.Println(err, 1)
 		return err
@@ -49,7 +49,7 @@ func (p *Producer) publish(topic string, filter string, typ int32, body []byte, 
 }
 
 func (p *Producer) WaitAck(c *Conn) error {
-	m, err := msg.Unmarshal(c.c)
+	m, err := msg.Unmarshal(c)
 	if err != nil {
 		log.Println(err, "waitack")
 		return err
@@ -107,7 +107,7 @@ func (p *Producer) BatchPublish(m ...*msg.Message) error {
 		return err
 	}
 	defer p.Pool.Put(c)
-	return msg.BatchMarshal(msg.PackageMsgs(m...), c.c)
+	return msg.BatchMarshal(msg.PackageMsgs(m...), c)
 }
 
 func (p *Producer) Close() {

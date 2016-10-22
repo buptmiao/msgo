@@ -18,6 +18,7 @@ const (
 	DefaultPoolSize = 10
 	DefaultDialTimeout = time.Second * 5
 	DefaultPoolTimeout = time.Second * 5
+	DefaultConnPerSecond = 500
 )
 
 var timers = sync.Pool{
@@ -31,7 +32,7 @@ var (
 )
 
 type Conn struct {
-	c           net.Conn
+	C           net.Conn
 	createTime  time.Time
 	totalCount  int64
 
@@ -46,14 +47,22 @@ func newConn(c *ConnPool) (*Conn, error) {
 	//res.avglifetime = 0
 	res.pool = c
 	var err error
-	if res.c, err = net.DialTimeout("tcp", c.remoteAddr, c.timeout); err != nil {
+	if res.C, err = net.DialTimeout("tcp", c.remoteAddr, c.timeout); err != nil {
 		return nil, err
 	}
 	return res, nil
 }
 
+func (c *Conn) Read(b []byte) (n int, err error){
+	return c.C.Read(b)
+}
+
+func (c *Conn) Write(b []byte) (n int, err error){
+	return c.C.Write(b)
+}
+
 func (c *Conn) Close() error {
-	return c.c.Close()
+	return c.C.Close()
 }
 
 // the definition of Connect pool
@@ -66,6 +75,7 @@ type ConnPool struct {
 	timeout     time.Duration
 	poolTimeout time.Duration
 	remoteAddr  string
+	limiter     *RateLimiter
 	tickets     chan struct{}
 	Mu          sync.Mutex
 	allConn     *list.List
@@ -73,13 +83,15 @@ type ConnPool struct {
 	idleConn    *list.List
 }
 
-func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr string) *ConnPool {
+func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr string, rate int64) *ConnPool {
 	p := &ConnPool{
 		size:        poolSize,
 		status:      ACTIVE,
 		timeout:     dialTimeout,
 		poolTimeout: poolTimeout,
 		remoteAddr:  addr,
+		limiter: 	 NewRateLimiter(rate, time.Second),
+
 		tickets:     make(chan struct{}, poolSize),
 		allConn:     list.New(),
 		idleConn:    list.New(),
@@ -91,7 +103,11 @@ func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr stri
 }
 
 func NewDefaultConnPool(addr string) *ConnPool {
-	return NewConnPool(DefaultPoolSize, DefaultDialTimeout, DefaultPoolTimeout, addr)
+	return NewConnPool(DefaultPoolSize, DefaultDialTimeout, DefaultPoolTimeout, addr, DefaultConnPerSecond)
+}
+
+func (p *ConnPool) Size() int {
+	return p.size
 }
 
 func (p *ConnPool) Get() (*Conn, error) {
@@ -109,6 +125,7 @@ func (p *ConnPool) Get() (*Conn, error) {
 	if c := p.popIdle(); c != nil {
 		return c, nil
 	}
+	p.limiter.Acquire()
 	c, err := newConn(p)
 	if err != nil {
 		p.tickets <- struct{}{}

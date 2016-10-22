@@ -39,14 +39,12 @@ goreman start producer1 producer2
 Look at the output of consumers:
 
 ```
-23:17:28 consumer1 | Starting consumer1 on port 5002
-23:17:28 consumer2 | Starting consumer2 on port 5003
-23:17:45 consumer1 | hello world
-23:17:45 consumer2 | hello world
-23:17:45 consumer2 | hello world
-23:17:45 consumer2 |  exit...
-23:17:45 consumer1 | hello world
-23:17:45 consumer1 |  exit...
-23:17:45 consumer2 | Terminating consumer2
-23:17:45 consumer1 | Terminating consumer1
+16:19:47 consumer2 | hello world
+16:19:47 consumer1 | hello world
+16:19:47 consumer1 | hello world
+16:19:47 consumer1 | consumer1 exit...
+16:19:47 consumer2 | hello world
+16:19:47 consumer2 | consumer2 exit...
+16:19:47 consumer1 | Terminating consumer1
+16:19:47 consumer2 | Terminating consumer2
 ```

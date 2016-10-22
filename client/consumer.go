@@ -30,7 +30,7 @@ func (s *subscribe) run() {
 			// todo: stop this subscribe
 			break
 		}
-		m, err := msg.BatchUnmarshal(s.c.c)
+		m, err := msg.BatchUnmarshal(s.c)
 		if err != nil {
 			log.Fatalln("batch unmarshal failed", err)
 			break
@@ -65,7 +65,7 @@ func (s *subscribe) calRemain(v int64) {
 }
 
 func (s *subscribe) recvMsgs() ([]*msg.Message, error) {
-	m, err := msg.BatchUnmarshal(s.c.c)
+	m, err := msg.BatchUnmarshal(s.c)
 	if err != nil {
 		return nil, err
 	}
@@ -80,7 +80,7 @@ func (s *subscribe) sendAck() error {
 		Filter: s.filter,
 		Timestamp: time.Now().UnixNano(),
 	}
-	return msg.BatchMarshal(msg.PackageMsgs(m), s.c.c)
+	return msg.BatchMarshal(msg.PackageMsgs(m), s.c)
 }
 
 func (s *subscribe) sendSub(topic string, filter string, count int64) error {
@@ -93,7 +93,7 @@ func (s *subscribe) sendSub(topic string, filter string, count int64) error {
 		Timestamp: time.Now().UnixNano(),
 		NeedAck: true,
 	}
-	return msg.BatchMarshal(msg.PackageMsgs(m), s.c.c)
+	return msg.BatchMarshal(msg.PackageMsgs(m), s.c)
 }
 
 func (s *subscribe) sendUnSub(topic string) error {
@@ -104,7 +104,7 @@ func (s *subscribe) sendUnSub(topic string) error {
 		Timestamp: time.Now().UnixNano(),
 		NeedAck: false,
 	}
-	return msg.BatchMarshal(msg.PackageMsgs(m), s.c.c)
+	return msg.BatchMarshal(msg.PackageMsgs(m), s.c)
 }
 
 func (s *subscribe) close() {
@@ -187,7 +187,7 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 		sub = s
 	}
 	sub.sendSub(sub.topic, sub.filter, remain)
-	m, err := msg.Unmarshal(sub.c.c)
+	m, err := msg.Unmarshal(sub.c)
 	if m.Type == msg.MessageType_Ack {
 		go sub.run()
 	}
