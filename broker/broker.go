@@ -14,7 +14,7 @@ type Broker struct {
 	msg net.Listener
 	http net.Listener
 
-	stable *StableStorage
+	stable Storage
 
 	status int
 
@@ -48,7 +48,12 @@ func NewBroker() {
 	broker.status = STOP
 	broker.topics = make(map[string]*TopicQueue)
 
-	broker.stable = NewStable()
+	if Config.Aof != "" {
+		broker.stable = NewStorageAOF(Config.Aof, int32(Config.SyncType), Config.Threshold)
+	}else{
+		broker.stable = NewStable()
+	}
+
 
 	DefaultBroker = broker
 }
@@ -56,7 +61,7 @@ func NewBroker() {
 func (b *Broker) Start() {
 	b.status = RUNNING
 	ServeHTTP(b.http)
-
+	b.Replay()
 	for {
 		conn, err := b.msg.Accept()
 		if err != nil {
@@ -116,7 +121,6 @@ func (b *Broker) Replay() {
 		// it may block here
 		m, err := b.stable.Get()
 		if err != nil {
-			Error.Println(err)
 			break
 		}
 		topic := b.Get(m.GetTopic())

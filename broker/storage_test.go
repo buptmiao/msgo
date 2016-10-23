@@ -14,7 +14,7 @@ import (
 )
 
 func TestInitClose(t *testing.T) {
-	stable := msgo.NewStable()
+	stable := broker.NewStable()
 	stable.Truncate()
 }
 
@@ -41,6 +41,7 @@ func randomString(len int, rang int64) string {
 // pub message
 func newMessage() *msg.Message {
 	res := &msg.Message{}
+	res.MsgId = uint64(time.Now().UnixNano())
 	res.Type = msg.MessageType(rand.Int31n(int32(len(msg.MessageType_name))))
 
 	res.Topic = randomString(16, 10)
@@ -55,7 +56,7 @@ func newMessage() *msg.Message {
 }
 
 func TestSaveAndGetMsg(t *testing.T) {
-	stable := msgo.NewStable()
+	stable := broker.NewStable()
 	m1 := newMessage()
 	stable.Save(m1)
 	m2,err := stable.Get()
@@ -67,10 +68,10 @@ func TestSaveAndGetMsg(t *testing.T) {
 }
 
 func TestDeleteMsg(t *testing.T) {
-	stable := msgo.NewStable()
+	stable := broker.NewStable()
 	m1 := newMessage()
 	stable.Save(m1)
-	stable.Delete([]*msg.Message{m1})
+	stable.Delete(m1)
 	m2, _ := stable.Get()
 	if reflect.DeepEqual(m1, m2) {
 		panic("m1 != m2")
@@ -79,7 +80,7 @@ func TestDeleteMsg(t *testing.T) {
 }
 
 func TestPerformance(b *testing.T) {
-	stable := msgo.NewStable()
+	stable := broker.NewStable()
 	msgs := make([]*msg.Message, 0, 10000)
 	for i := 0; i < 10000; i++ {
 		msgs = append(msgs, newMessage())

@@ -1,7 +1,6 @@
 package broker
 
 import (
-
 	"time"
 
 	"github.com/buptmiao/msgo/msg"
@@ -12,21 +11,18 @@ import (
 	"os"
 )
 
-//type Storage interface {
-//	// it generate a auto-incrementing sequence id for m and save
-//	Save(m *msg.Message) error
-//
-//	Get() (*msg.Message, error)
-//	Delete(msgs []*msg.Message) error
-//	Close() error
-//	// destroy all storage info
-//	Truncate()
-//}
+type Storage interface {
+	Save(m ...*msg.Message) error
+	Get() (*msg.Message, error)
+	Delete(m ...*msg.Message) error
+	Close() error
+	Truncate()
+}
 
 type StableStorage struct {
-	db *bolt.DB
+	db      *bolt.DB
 	lastkey []byte
-	size int64
+	size    int64
 }
 
 func NewStable() *StableStorage {
@@ -51,18 +47,24 @@ func NewStable() *StableStorage {
 	return res
 }
 
-func (s *StableStorage) Save(m *msg.Message) error {
+func (s *StableStorage) Save(m ...*msg.Message) error {
 	atomic.AddInt64(&s.size, 1)
 
 	return s.db.Update(func(tx *bolt.Tx) error {
 		b := tx.Bucket([]byte("msgo"))
-		id, _ := b.NextSequence()
-		m.MsgId = uint64(id)
-		buf, err := m.Marshal()
-		if err != nil {
-			return err
+		for _, v := range m {
+			id, _ := b.NextSequence()
+			v.MsgId = uint64(id)
+			buf, err := v.Marshal()
+			if err != nil {
+				return err
+			}
+			err = b.Put(itob(v.MsgId), buf)
+			if err != nil {
+				return err
+			}
 		}
-		return b.Put(itob(m.MsgId), buf)
+		return nil
 	})
 }
 
@@ -96,10 +98,10 @@ func (s *StableStorage) Get() (*msg.Message, error) {
 	return m, nil
 }
 
-func (s *StableStorage) Delete(msgs []*msg.Message) error {
+func (s *StableStorage) Delete(msgs ...*msg.Message) error {
 	var keys [][]byte
 	for _, m := range msgs {
-		if m.MsgId == 0 || !m.Persist{
+		if m.MsgId == 0 || !m.Persist {
 			continue
 		}
 		keys = append(keys, itob(m.MsgId))

@@ -2,7 +2,7 @@
 
 build: go build -o brokercmd ./broker/main.go && go build -o consumercmd ./consumer/main.go && go build -o producercmd ./producer/main.go
 
-broker: ./brokercmd -port 13001
+broker: ./brokercmd -port 13001 -aof msgo.aof
 consumer1: ./consumercmd -addr localhost:13001 -count 2 -name consumer1
 consumer2: ./consumercmd -addr localhost:13001 -count 2 -name consumer2
 producer1: ./producercmd -addr localhost:13001

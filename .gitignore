@@ -1,3 +1,5 @@
 todo.md
 examples/demo/*cmd
 examples/demo/*db
+examples/demo/*aof
+*/*.aof
