@@ -8,12 +8,12 @@ import (
 //
 type msgChan chan []*msg.Message
 
-// NewMsgChan creates a new msgChan
+//NewMsgChan creates a new msgChan
 func NewMsgChan() msgChan {
 	return make(chan []*msg.Message, 1)
 }
 
-// PushBack
+//PushBack
 func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
@@ -26,7 +26,7 @@ func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	}
 }
 
-// PushFront
+//PushFront
 func (pc msgChan) PushFront(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
@@ -39,7 +39,7 @@ func (pc msgChan) PushFront(cmd ...*msg.Message) {
 	}
 }
 
-// A channel is defined as a subscribe relationship.
+//A channel is defined as a subscribe relationship.
 type subscribe struct {
 	topic  *TopicQueue
 	client *Client
@@ -70,13 +70,13 @@ func newsubscribe(topic *TopicQueue, client *Client, filter string, cnt int64, a
 	return res
 }
 
-// Run loop
+//Run loop
 func (s *subscribe) Run() {
 	for {
 		select {
 
 		case msgs := <-s.buf:
-			// may be closed
+			//may be closed
 			if len(msgs) == 0 {
 				continue
 			}
@@ -102,7 +102,7 @@ func (s *subscribe) sendMsg(msgs []*msg.Message) {
 		if s.NeedAck {
 			select {
 			case <-s.ack:
-				// todo delete msg.
+				//todo delete msg.
 				Debug.Println("recv ack")
 				return
 			case <-time.After(time.Second * 5):

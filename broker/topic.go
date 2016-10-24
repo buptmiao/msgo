@@ -7,7 +7,7 @@ import (
 	"sync/atomic"
 )
 
-// TopicQueue instance, represent a topic.
+//TopicQueue instance, represent a topic.
 type TopicQueue struct {
 	broker *Broker
 	status int
@@ -26,7 +26,7 @@ type TopicQueue struct {
 	stop chan struct{}
 }
 
-// NewTopicQueue creates a TopicQueue
+//NewTopicQueue creates a TopicQueue
 func NewTopicQueue(broker *Broker, topic string) *TopicQueue {
 	res := new(TopicQueue)
 
@@ -44,7 +44,7 @@ func NewTopicQueue(broker *Broker, topic string) *TopicQueue {
 	return res
 }
 
-// Run loop
+//Run loop
 func (t *TopicQueue) Run() {
 	t.status = RUNNING
 	for {
@@ -65,17 +65,17 @@ func (t *TopicQueue) Run() {
 	}
 }
 
-// Status returns the runtime status of the topic
+//Status returns the runtime status of the topic
 func (t *TopicQueue) Status() int {
 	return t.status
 }
 
-// NumberOfSubscribers returns the current number of subscribers
+//NumberOfSubscribers returns the current number of subscribers
 func (t *TopicQueue) NumberOfSubscribers() int64 {
 	return atomic.LoadInt64(&t.size)
 }
 
-// Bind
+//Bind
 func (t *TopicQueue) Bind(s *subscribe) {
 	t.subscribeMu.Lock()
 	defer t.subscribeMu.Unlock()
@@ -88,7 +88,7 @@ func (t *TopicQueue) Bind(s *subscribe) {
 	t.cond.Signal()
 }
 
-// Unbind
+//Unbind
 func (t *TopicQueue) Unbind(s *subscribe) {
 	t.subscribeMu.Lock()
 	defer t.subscribeMu.Unlock()
@@ -99,7 +99,7 @@ func (t *TopicQueue) Unbind(s *subscribe) {
 	}
 }
 
-// Push
+//Push
 func (t *TopicQueue) Push(m *msg.Message) {
 	t.buf.PushBack(m)
 }
@@ -133,12 +133,12 @@ func (t *TopicQueue) dispatch(msgs []*msg.Message) {
 		}
 	}
 	//if !send {
-	//	// todo delete msg
+	//	//todo delete msg
 	//	Debug.Println("test point 1")
 	//}
 }
 
-// Close the topic queue
+//Close the topic queue
 func (t *TopicQueue) Close() {
 	close(t.stop)
 	close(t.buf)

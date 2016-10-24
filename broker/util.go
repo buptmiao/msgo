@@ -11,12 +11,12 @@ func itob(id uint64) []byte {
 	return b
 }
 
-// PortToLocalAddr
+//PortToLocalAddr
 func PortToLocalAddr(port int) string {
 	return fmt.Sprintf(":%d", port)
 }
 
-// PanicIfErr
+//PanicIfErr
 func PanicIfErr(err error) {
 	if err != nil {
 		panic(err)

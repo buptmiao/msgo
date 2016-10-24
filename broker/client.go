@@ -8,7 +8,7 @@ import (
 	"sync"
 )
 
-// client that broker based on, to handle per request
+//Client that broker based on, to handle per request
 type Client struct {
 	status int
 	sync.Mutex
@@ -29,13 +29,13 @@ func newClient(broker *Broker, conn net.Conn) *Client {
 	return res
 }
 
-// Run loop of a client, until a error occur.
+//Run loop of a client, until a error occur.
 func (c *Client) Run() {
 	//
 	c.status = RUNNING
 	count := 0
 	for {
-		// block here
+		//block here
 		msgs, err := c.recvMsg()
 		if err != nil {
 			if err != io.EOF {
@@ -54,7 +54,7 @@ func (c *Client) Run() {
 	c.Close()
 }
 
-// return err if it is needed to close client
+//return err if it is needed to close client
 func (c *Client) handle(m *msg.MessageList) error {
 	var err error
 	var needAck bool
@@ -84,7 +84,7 @@ func (c *Client) handle(m *msg.MessageList) error {
 	return err
 }
 
-// Ack send ack
+//Ack send ack
 func (c *Client) Ack() error {
 	ack := msg.NewAckMsg()
 	return c.sendMsg(ack)
@@ -92,7 +92,7 @@ func (c *Client) Ack() error {
 
 func (c *Client) handleSubscribe(m *msg.Message) {
 	sub, ok := c.subscribes[m.GetTopic()]
-	// new subscribe
+	//new subscribe
 	if !ok {
 		Log.Printf("%v subscribe topic %s\n", c.conn.RemoteAddr(), m.GetTopic())
 		topic := c.broker.Get(m.GetTopic())
@@ -123,7 +123,7 @@ func (c *Client) handleUnSubscribe(m *msg.Message) {
 		delete(c.subscribes, m.GetTopic())
 		sub.close()
 	}
-	// if a client subscribe no topics, then close it
+	//if a client subscribe no topics, then close it
 	if len(c.subscribes) == 0 {
 		c.Close()
 	}
@@ -156,7 +156,7 @@ func (c *Client) sendMsg(m ...*msg.Message) error {
 	return err
 }
 
-// Close the client
+//Close the client
 func (c *Client) Close() {
 	if c.status == STOP {
 		return

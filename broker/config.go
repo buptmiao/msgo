@@ -9,7 +9,7 @@ import (
 	"math"
 )
 
-// Configure
+//Configure
 type Configure struct {
 	HttpPort int
 	MsgPort  int
@@ -25,13 +25,13 @@ type Configure struct {
 	Threshold int
 }
 
-// Config is the default config file
+//Config is the default config file
 var Config *Configure = new(Configure)
 
-// LoadConfig
+//LoadConfig
 func LoadConfig() {
 	var configFile string
-	// todo the default config Path
+	//todo the default config Path
 	flag.IntVar(&Config.HttpPort, "httpport", 13000, "the http port")
 	flag.IntVar(&Config.MsgPort, "port", 13001, "the msg port")
 	flag.IntVar(&Config.Retry, "r", 3, "the retry times")
@@ -52,9 +52,9 @@ func LoadConfig() {
 	ArbitrateConfigs(Config)
 }
 
-// ArbitrateConfigs will check the config file
+//ArbitrateConfigs will check the config file
 func ArbitrateConfigs(c *Configure) {
-	// check the ClusterName, ClusterName is used to Identify the clusters in the Local NetWork
+	//check the ClusterName, ClusterName is used to Identify the clusters in the Local NetWork
 	if c.HttpPort == c.MsgPort {
 		panic("port conflict")
 	}

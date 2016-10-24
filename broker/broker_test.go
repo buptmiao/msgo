@@ -63,7 +63,7 @@ func TestSubscribeAndPublish(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	// wait to test delay
+	//wait to test delay
 	time.Sleep(time.Second * 7)
 	consumer.Close()
 	b.Stop()

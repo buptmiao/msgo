@@ -15,7 +15,7 @@ func TestTopicQueue_Close(t *testing.T) {
 		}
 		time.Sleep(time.Millisecond * 20)
 	}
-	// fake
+	//fake
 	tq.Bind(nil)
 	tq.Close()
 	for {

@@ -8,27 +8,29 @@ import (
 )
 
 const (
+	//LEVELON
 	LEVELON  = 0
+	//LEVELOFF
 	LEVELOFF = 1
 )
 
-// Logger
+//Logger
 type Logger struct {
 	l     *log.Logger
 	level int32
 }
 
-// SetLevel
+//SetLevel
 func (l *Logger) SetLevel(level int32) {
 	atomic.StoreInt32(&l.level, level)
 }
 
-// Level
+//Level
 func (l *Logger) Level() int32 {
 	return atomic.LoadInt32(&l.level)
 }
 
-// Printf
+//Printf
 func (l *Logger) Printf(format string, v ...interface{}) {
 	if l.Level() == LEVELOFF {
 		return
@@ -36,7 +38,7 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 	l.l.Output(2, fmt.Sprintf(format, v...))
 }
 
-// Print
+//Print
 func (l *Logger) Print(v ...interface{}) {
 	if l.Level() == LEVELOFF {
 		return
@@ -44,7 +46,7 @@ func (l *Logger) Print(v ...interface{}) {
 	l.l.Output(2, fmt.Sprint(v...))
 }
 
-// Println
+//Println
 func (l *Logger) Println(v ...interface{}) {
 	if l.Level() == LEVELOFF {
 		return
@@ -67,38 +69,38 @@ func (l *Logger) Println(v ...interface{}) {
 //	os.Exit(1)
 //}
 
-// Panic
+//Panic
 func (l *Logger) Panic(v ...interface{}) {
 	s := fmt.Sprint(v...)
 	l.l.Output(2, s)
 	panic(s)
 }
 
-// Panicf
+//Panicf
 func (l *Logger) Panicf(format string, v ...interface{}) {
 	s := fmt.Sprintf(format, v...)
 	l.l.Output(2, s)
 	panic(s)
 }
 
-// Panicln
+//Panicln
 func (l *Logger) Panicln(v ...interface{}) {
 	s := fmt.Sprintln(v...)
 	l.l.Output(2, s)
 	panic(s)
 }
 
-// Flags
+//Flags
 func (l *Logger) Flags() int {
 	return l.l.Flags()
 }
 
-// SetFlags
+//SetFlags
 func (l *Logger) SetFlags(flag int) {
 	l.l.SetFlags(flag)
 }
 
-// Prefix
+//Prefix
 func (l *Logger) Prefix() string {
 	return l.l.Prefix()
 }
@@ -109,9 +111,9 @@ func (l *Logger) SetPrefix(prefix string) {
 }
 
 var (
-	Debug *Logger // Debug
-	Log   *Logger // Log
-	Error *Logger // Error
+	Debug *Logger //Debug
+	Log   *Logger //Log
+	Error *Logger //Error
 )
 
 func init() {
@@ -121,12 +123,12 @@ func init() {
 	Error = &Logger{l: log.New(os.Stderr, "[ERROR]: ", format|log.Llongfile), level: LEVELON}
 }
 
-// EnableDebug
+//EnableDebug
 func EnableDebug() {
 	Debug.SetLevel(LEVELON)
 }
 
-// DisableDebug
+//DisableDebug
 func DisableDebug() {
 	Debug.SetLevel(LEVELOFF)
 }

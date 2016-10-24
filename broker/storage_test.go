@@ -38,7 +38,7 @@ func randomString(len int, rang int64) string {
 	return string(res)
 }
 
-// pub message
+//pub message
 func newMessage() *msg.Message {
 	res := &msg.Message{}
 	res.MsgId = uint64(time.Now().UnixNano())

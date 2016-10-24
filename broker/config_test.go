@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-// Only one broker
+//Only one broker
 var OneLoad sync.Once
 
 func loadConfig() {
