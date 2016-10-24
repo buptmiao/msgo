@@ -97,7 +97,7 @@ func TestStorageAOF_Rewrite2(t *testing.T) {
 	}
 
 	for {
-		if aof.DeleteOps() == 0 {
+		if aof.DeleteOps() <= 10 {
 			break
 		}
 		time.Sleep(time.Millisecond * 200)
