@@ -58,9 +58,7 @@ func (s *StableStorage) Save(m ...*msg.Message) error {
 				return err
 			}
 			err = b.Put(itob(v.MsgId), buf)
-			if err != nil {
-				return err
-			}
+			return err
 		}
 		return nil
 	})
@@ -89,7 +87,6 @@ func (s *StableStorage) Get() (*msg.Message, error) {
 
 	err := m.Unmarshal(res)
 	if err != nil {
-		Error.Println(err)
 		return nil, err
 	}
 	atomic.AddInt64(&s.size, -1)

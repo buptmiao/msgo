@@ -12,7 +12,7 @@ func NewMsgChan() msgChan {
 	return make(chan []*msg.Message, 1)
 }
 
-func (pc msgChan) pushBack(cmd ...*msg.Message) {
+func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
 		select {
@@ -24,7 +24,7 @@ func (pc msgChan) pushBack(cmd ...*msg.Message) {
 	}
 }
 
-func (pc msgChan) pushFront(cmd ...*msg.Message) {
+func (pc msgChan) PushFront(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
 		select {
@@ -82,7 +82,7 @@ func (s *subscribe) Run() {
 				Error.Println("unexpected ack")
 			}
 		//ignore
-			Error.Println("unexpected ack, ignore it")
+			Error.Println("unexpected ack, ignore it", s)
 		case <-s.client.stop:
 			Debug.Println("subscribe stop by client")
 			return
@@ -118,7 +118,7 @@ func (s *subscribe) match(m *msg.Message) bool {
 }
 
 func (s *subscribe) pushMsg(m *msg.Message) {
-	s.buf.pushBack(m)
+	s.buf.PushBack(m)
 }
 
 func (s *subscribe) pushAck() {

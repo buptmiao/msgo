@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 	"io"
+	"errors"
 )
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -13,20 +14,26 @@ import (
 //
 /////////////////////////////////////////////////////////////////////////////////////////////
 
+var (
+	ErrSubcribeTimeout = errors.New("subscribe topic time out")
+)
+
 type subscribe struct {
-	topic  string
-	filter string
+	topic     string
+	filter    string
 	//remain msg number, if negative, it means unlimited.
-	remain int64
-	consumer *Consumer
-	h      Handler
-	last   int64
-	c      *Conn
+	remain    int64
+	consumer  *Consumer
+	h         Handler
+	last      int64
+	waitAck   bool
+	updateAck chan struct{}
+	c         *Conn
 }
 
 func (s *subscribe) run() {
 	s.h.Before()
-	for{
+	for {
 		if s.remain == 0 {
 			// todo: stop this subscribe
 			break
@@ -40,6 +47,13 @@ func (s *subscribe) run() {
 		}
 
 		ml := int64(len(m.Msgs))
+		// handle ack, maybe update filter.
+		if ml == 1 && m.Msgs[0].GetType() == msg.MessageType_Ack {
+			if s.waitAck {
+				s.updateAck <- struct{}{}
+			}
+			continue
+		}
 		s.calRemain(ml)
 
 		err = s.h.Handle(m.GetMsgs()...)
@@ -161,7 +175,6 @@ func NewConsumer(addr string) *Consumer {
 //
 func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handler) error {
 	// this topic has been subscribed, if something changed, update it
-	var sub *subscribe
 	if s, ok := c.subscribes[topic]; ok {
 		// nothing changed, no need to send request to broker
 		if s.filter == filter {
@@ -171,8 +184,18 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 		}
 		s.filter = filter
 		s.h = h
-		sub = s
-
+		s = s
+		s.sendSub(s.topic, s.filter, remain)
+		s.waitAck = true
+		select {
+		case <-s.updateAck:
+			s.waitAck = false
+			return nil
+		case <-time.After(time.Second * 5):
+			s.waitAck = false
+			s.updateAck = make(chan struct{}, 1)
+			return ErrSubcribeTimeout
+		}
 		// need update
 	} else {
 		// create new subscribe
@@ -181,20 +204,26 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 		s.filter = filter
 		s.remain = remain
 		s.h = h
+		s.waitAck = false
+		s.updateAck = make(chan struct{}, 1)
 		var err error
 		if s.c, err = c.Pool.Get(); err != nil {
 			return err
 		}
 		//record it
 		c.subscribes[topic] = s
-		sub = s
+		s = s
+		s.sendSub(s.topic, s.filter, remain)
+		m, err := msg.Unmarshal(s.c)
+		if m.Type == msg.MessageType_Ack {
+			go s.run()
+		}
+		if err != nil {
+			return err
+		}
 	}
-	sub.sendSub(sub.topic, sub.filter, remain)
-	m, err := msg.Unmarshal(sub.c)
-	if m.Type == msg.MessageType_Ack {
-		go sub.run()
-	}
-	return err
+
+	return nil
 }
 
 func (c *Consumer) unsubscribe(topic string) error {

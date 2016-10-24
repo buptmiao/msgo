@@ -88,7 +88,7 @@ func (t *TopicQueue) Unbind(s *subscribe) {
 }
 
 func (t *TopicQueue) Push(m *msg.Message) {
-	t.buf.pushBack(m)
+	t.buf.PushBack(m)
 }
 
 func (t *TopicQueue) dispatch(msgs []*msg.Message) {
@@ -128,4 +128,5 @@ func (t *TopicQueue) dispatch(msgs []*msg.Message) {
 func (t *TopicQueue) Close() {
 	close(t.stop)
 	close(t.buf)
+	t.cond.Signal()
 }

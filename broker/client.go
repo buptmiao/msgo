@@ -76,6 +76,7 @@ func (c *Client) handle(m *msg.MessageList) error {
 	}
 
 	if needAck {
+		Debug.Println("broker send ack")
 		err = c.Ack()
 	}
 	return err
@@ -95,6 +96,7 @@ func (c *Client) handleSubscribe(m *msg.Message) {
 		sub = newsubscribe(topic, c, m.GetFilter(), m.GetCount(), m.GetNeedAck())
 		c.subscribes[m.GetTopic()] = sub
 	} else {
+		Debug.Printf("%v update topic %s\n",c.conn.RemoteAddr(), m.GetTopic())
 		sub.update(m.GetFilter(), m.GetCount())
 	}
 }
