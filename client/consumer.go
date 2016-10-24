@@ -9,7 +9,7 @@ import (
 )
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// subscribe:
+//subscribe:
 //		a subscribe describe a subscribe relationship with remote.
 //
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ func (s *subscribe) run() {
 	s.h.Before()
 	for {
 		if s.remain == 0 {
-			// todo: stop this subscribe
+			//todo: stop this subscribe
 			break
 		}
 		m, err := msg.BatchUnmarshal(s.c)
@@ -48,7 +48,7 @@ func (s *subscribe) run() {
 		}
 
 		ml := int64(len(m.Msgs))
-		// handle ack, maybe update filter.
+		//handle ack, maybe update filter.
 		if ml == 1 && m.Msgs[0].GetType() == msg.MessageType_Ack {
 			if s.waitAck {
 				s.updateAck <- struct{}{}
@@ -59,12 +59,12 @@ func (s *subscribe) run() {
 
 		err = s.h.Handle(m.GetMsgs()...)
 		if err != nil {
-			log.Println(err) // for debug
+			log.Println(err) //for debug
 			break
 		}
 		err = s.sendAck()
 		if err != nil {
-			log.Println(err) // for debug
+			log.Println(err) //for debug
 			break
 		}
 	}
@@ -72,7 +72,7 @@ func (s *subscribe) run() {
 }
 
 func (s *subscribe) calRemain(v int64) {
-	// means forever
+	//means forever
 	if s.remain < 0 {
 		return
 	}
@@ -91,7 +91,7 @@ func (s *subscribe) recvMsgs() ([]*msg.Message, error) {
 }
 
 func (s *subscribe) sendAck() error {
-	// create ack msg
+	//create ack msg
 	m := &msg.Message{
 		Type:      msg.MessageType_Ack,
 		Topic:     s.topic,
@@ -129,44 +129,44 @@ func (s *subscribe) close() {
 	s.c.pool.Remove(s.c)
 }
 
-// Handler defines the functions that handle messages
+//Handler defines the functions that handle messages
 type Handler interface {
+	//Before method
 	Before()
-	// when Handle return value is not nil, run loop will abort, then After() will be invoked.
+	//Handle when Handle return value is not nil, run loop will abort, then After() will be invoked.
 	Handle(...*msg.Message) error
+	//After method
 	After()
 }
 
-// DefaultHandler is the default handler, used by Subscribe method.
+//DefaultHandler is the default handler, used by Subscribe method.
 type DefaultHandler struct {
 	h func(...*msg.Message) error
 }
 
-// Before
+//Before method
 func (d *DefaultHandler) Before() {
 	return
 }
 
-// Handle
+//Handle method
 func (d *DefaultHandler) Handle(msgs ...*msg.Message) error {
 	return d.h(msgs...)
 }
 
-// After
+//After method
 func (d *DefaultHandler) After() {
 	return
 }
 
-// Consumer
-//
-//
+//Consumer instance
 type Consumer struct {
 	Pool *ConnPool
-	// classify by topic
+	//classify by topic
 	subscribes map[string]*subscribe
 }
 
-// NewConsumer
+//NewConsumer creates a new Consumer
 func NewConsumer(addr string) *Consumer {
 	res := new(Consumer)
 	res.Pool = NewDefaultConnPool(addr)
@@ -178,9 +178,9 @@ func NewConsumer(addr string) *Consumer {
 //
 //
 func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handler) error {
-	// this topic has been subscribed, if something changed, update it
+	//this topic has been subscribed, if something changed, update it
 	if s, ok := c.subscribes[topic]; ok {
-		// nothing changed, no need to send request to broker
+		//nothing changed, no need to send request to broker
 		if s.filter == filter {
 			s.remain = remain
 			s.h = h
@@ -200,9 +200,9 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 			s.updateAck = make(chan struct{}, 1)
 			return ErrSubscribeTimeout
 		}
-		// need update
+		//need update
 	} else {
-		// create new subscribe
+		//create new subscribe
 		s := new(subscribe)
 		s.topic = topic
 		s.filter = filter
@@ -236,14 +236,14 @@ func (c *Consumer) unsubscribe(topic string) error {
 	}
 	delete(c.subscribes, topic)
 
-	// close to let remote deallocate resources.
+	//close to let remote deallocate resources.
 	//
 	err := s.sendUnSub(topic)
 	s.close()
 	return err
 }
 
-// Subscribe
+//Subscribe topic with filter and default handler
 func (c *Consumer) Subscribe(topic string, filter string, f func(...*msg.Message) error) error {
 	handler := &DefaultHandler{
 		h: f,
@@ -251,12 +251,12 @@ func (c *Consumer) Subscribe(topic string, filter string, f func(...*msg.Message
 	return c.subscribe(topic, filter, -1, handler)
 }
 
-// SubscribeWithHandler
+//SubscribeWithHandler subscribe topic with filter and given handler
 func (c *Consumer) SubscribeWithHandler(topic string, filter string, h Handler) error {
 	return c.subscribe(topic, filter, -1, h)
 }
 
-// SubscribeWithCount
+//SubscribeWithCount subscribe topic with filter and default handler with count
 func (c *Consumer) SubscribeWithCount(topic string, filter string, count int64, f func(...*msg.Message) error) error {
 	handler := &DefaultHandler{
 		h: f,
@@ -264,17 +264,17 @@ func (c *Consumer) SubscribeWithCount(topic string, filter string, count int64, 
 	return c.subscribe(topic, filter, count, handler)
 }
 
-// SubscribeWithCountAndHandler
+//SubscribeWithCountAndHandler subscribe topic with filter and given handler with count
 func (c *Consumer) SubscribeWithCountAndHandler(topic string, filter string, count int64, h Handler) error {
 	return c.subscribe(topic, filter, count, h)
 }
 
-// UnSubscribe
+//UnSubscribe topic
 func (c *Consumer) UnSubscribe(topic string) error {
 	return c.unsubscribe(topic)
 }
 
-// Close
+//Closethe consumer
 func (c *Consumer) Close() {
 	c.Pool.Close()
 }

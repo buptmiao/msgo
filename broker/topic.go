@@ -75,7 +75,7 @@ func (t *TopicQueue) NumberOfSubscribers() int64 {
 	return atomic.LoadInt64(&t.size)
 }
 
-//Bind
+//Bind the subscriber
 func (t *TopicQueue) Bind(s *subscribe) {
 	t.subscribeMu.Lock()
 	defer t.subscribeMu.Unlock()
@@ -88,7 +88,7 @@ func (t *TopicQueue) Bind(s *subscribe) {
 	t.cond.Signal()
 }
 
-//Unbind
+//Unbind the subscriber
 func (t *TopicQueue) Unbind(s *subscribe) {
 	t.subscribeMu.Lock()
 	defer t.subscribeMu.Unlock()
@@ -99,7 +99,7 @@ func (t *TopicQueue) Unbind(s *subscribe) {
 	}
 }
 
-//Push
+//Push msg
 func (t *TopicQueue) Push(m *msg.Message) {
 	t.buf.PushBack(m)
 }

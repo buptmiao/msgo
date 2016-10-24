@@ -5,9 +5,9 @@ import (
 	"time"
 )
 
-// RateLimiter is based on Token Bucket algorithm, it
-// supports both blocking and non-blocking way. it is
-// thread-safe in concurrency
+//RateLimiter is based on Token Bucket algorithm, it
+//supports both blocking and non-blocking way. it is
+//thread-safe in concurrency
 type RateLimiter struct {
 	rate     int64
 	remain   int64
@@ -16,7 +16,7 @@ type RateLimiter struct {
 	lasttime int64
 }
 
-// NewRateLimiter create a new rate limiter
+//NewRateLimiter create a new rate limiter
 func NewRateLimiter(rate int64, unit time.Duration) *RateLimiter {
 	res := &RateLimiter{
 		rate:     rate,
@@ -28,17 +28,17 @@ func NewRateLimiter(rate int64, unit time.Duration) *RateLimiter {
 	return res
 }
 
-// Acquire Blocking when the limiter is available
+//Acquire Blocking when the limiter is available
 func (r *RateLimiter) Acquire() {
 	r.acquire(1, true)
 }
 
-// TryAcquire is Non-blocking, when acquire failed, it returns false.
+//TryAcquire is Non-blocking, when acquire failed, it returns false.
 func (r *RateLimiter) TryAcquire() bool {
 	return r.acquire(1, false)
 }
 
-// AcquireCount
+//AcquireCount will take multi-token
 func (r *RateLimiter) AcquireCount(count int64) {
 	if count > r.rate {
 		count = r.rate
@@ -46,7 +46,7 @@ func (r *RateLimiter) AcquireCount(count int64) {
 	r.acquire(count, true)
 }
 
-// internal achievement
+//internal achievement
 func (r *RateLimiter) acquire(count int64, block bool) bool {
 	r.fill()
 	var need int64
@@ -60,7 +60,7 @@ func (r *RateLimiter) acquire(count int64, block bool) bool {
 	return true
 }
 
-// fill the ratelimiter
+//fill the ratelimiter
 func (r *RateLimiter) fill() {
 	now := time.Now().UnixNano()
 	elapsed := now - atomic.SwapInt64(&r.lasttime, now)

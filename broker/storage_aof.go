@@ -15,12 +15,12 @@ import (
 )
 
 const (
-	SAVE   = 1  //SAVE action
-	DELETE = 0  //DELETE action
+	SAVE   = 1 //SAVE action
+	DELETE = 0 //DELETE action
 
-	NEVERSYNC   = 0  //NEVERSYNC strategy
-	EVERYSECOND = 1  //EVERYSECOND strategy
-	ALWAYSSYNC  = 2  //ALWAYSSYNC strategy
+	NEVERSYNC   = 0 //NEVERSYNC strategy
+	EVERYSECOND = 1 //EVERYSECOND strategy
+	ALWAYSSYNC  = 2 //ALWAYSSYNC strategy
 )
 
 var (
@@ -28,7 +28,7 @@ var (
 	ErrEmptyMsgList = errors.New("empty Msg list")
 )
 
-//StorageAOF
+//StorageAOF instance
 type StorageAOF struct {
 	size        int64
 	filename    string
@@ -71,7 +71,7 @@ func NewStorageAOF(filename string, syncType int32, threshold int) *StorageAOF {
 	return res
 }
 
-//Save
+//Save msg
 func (s *StorageAOF) Save(m ...*msg.Message) error {
 
 	bytes := s.toBinary(SAVE, m...)
@@ -95,7 +95,7 @@ func (s *StorageAOF) Save(m ...*msg.Message) error {
 	return nil
 }
 
-//Get
+//Get msg
 func (s *StorageAOF) Get() (*msg.Message, error) {
 	if s.msgs.Len() == 0 {
 		//should be ignored by application
@@ -106,7 +106,7 @@ func (s *StorageAOF) Get() (*msg.Message, error) {
 	return res, nil
 }
 
-//Delete
+//Delete msg
 func (s *StorageAOF) Delete(m ...*msg.Message) error {
 	bytes := s.toBinary(DELETE, m...)
 	s.aofMu.Lock()
@@ -128,7 +128,7 @@ func (s *StorageAOF) Delete(m ...*msg.Message) error {
 	return nil
 }
 
-//Close
+//Close aof
 func (s *StorageAOF) Close() error {
 	err := s.aof.Close()
 	s = nil
@@ -136,7 +136,7 @@ func (s *StorageAOF) Close() error {
 	return err
 }
 
-//Truncate
+//Truncate aof file
 func (s *StorageAOF) Truncate() {
 	os.Remove(s.filename)
 	s.Close()

@@ -60,7 +60,7 @@ func NewBroker() {
 	DefaultBroker = broker
 }
 
-//Start
+//Start the broker
 func (b *Broker) Start() {
 	b.status = RUNNING
 	ServeHTTP(b.http)
@@ -77,7 +77,7 @@ func (b *Broker) Start() {
 	}
 }
 
-//Stop
+//Stop the broker
 func (b *Broker) Stop() {
 	b.status = STOP
 	if b.stable != nil {
@@ -91,7 +91,7 @@ func (b *Broker) Stop() {
 	}
 }
 
-//Get
+//Get topic
 func (b *Broker) Get(topic string) *TopicQueue {
 	b.topicMu.RLock()
 
@@ -108,7 +108,7 @@ func (b *Broker) Get(topic string) *TopicQueue {
 	}
 }
 
-//Delete
+//Delete topic
 func (b *Broker) Delete(topic string) {
 	b.topicMu.Lock()
 	tq, ok := b.topics[topic]

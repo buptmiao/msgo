@@ -6,12 +6,12 @@ import (
 	"time"
 )
 
-// Producer
+//Producer instance
 type Producer struct {
 	Pool *ConnPool
 }
 
-// NewProducer
+//NewProducer creates a new producer
 func NewProducer(addr string) *Producer {
 	res := new(Producer)
 	res.Pool = NewDefaultConnPool(addr)
@@ -20,8 +20,8 @@ func NewProducer(addr string) *Producer {
 }
 
 //
-// type:
-//      0, direct; 1, fanout
+//type:
+//     0, direct; 1, fanout
 func (p *Producer) publish(topic string, filter string, typ int32, body []byte, persist bool, needAck bool) error {
 	if typ != 0 && typ != 1 {
 		return ErrParamsInvalid
@@ -50,7 +50,7 @@ func (p *Producer) publish(topic string, filter string, typ int32, body []byte, 
 	return p.WaitAck(c)
 }
 
-// WaitAck
+//WaitAck will block until an ack is coming
 func (p *Producer) WaitAck(c *Conn) error {
 	m, err := msg.Unmarshal(c)
 	if err != nil {
@@ -64,48 +64,56 @@ func (p *Producer) WaitAck(c *Conn) error {
 	return nil
 }
 
-// PublishDirectPersist
+//PublishDirectPersist publish body to topic with filter, persist, only one subscriber
+//Need Ack
 func (p *Producer) PublishDirectPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, true, true)
 }
 
-// PublishDirect
+//PublishDirect publish body to topic with filter, only one subscriber
+//Need Ack
 func (p *Producer) PublishDirect(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, false, true)
 }
 
-// PublishFanoutPersist
+//PublishFanoutPersist publish body to topic with filter, persist, all subscriber
+//Need Ack
 func (p *Producer) PublishFanoutPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, true, true)
 }
 
-// PublishFanout
+//PublishFanout publish body to topic with filter, all subscriber
+//Need Ack
 func (p *Producer) PublishFanout(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, false, true)
 }
 
-// PushDirectPersist The push methods need no ack
+//PushDirectPersist publish body to topic with filter, persist, only one subscriber
+//no Ack
 func (p *Producer) PushDirectPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, true, false)
 }
 
-// PushDirect
+//PushDirect publish body to topic with filter, only one subscriber
+//no Ack
 func (p *Producer) PushDirect(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, false, false)
 }
 
-// PushFanoutPersist
+//PushFanoutPersist publish body to topic with filter, persist, all subscriber
+//Need Ack
 func (p *Producer) PushFanoutPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, true, false)
 }
 
-// PushFanout
+//PushFanout publish body to topic with filter, all subscriber
+//no Ack
 func (p *Producer) PushFanout(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, false, false)
 }
 
-// BatchPublish batch publish msgs
-// all the messages must have MessageType_Publish.
+//BatchPublish batch publish msgs
+//all the messages must have MessageType_Publish.
 func (p *Producer) BatchPublish(m ...*msg.Message) error {
 	for _, v := range m {
 		if v.GetType() != msg.MessageType_Publish {
@@ -120,7 +128,7 @@ func (p *Producer) BatchPublish(m ...*msg.Message) error {
 	return msg.BatchMarshal(msg.PackageMsgs(m...), c)
 }
 
-// Close
+//Close the producer
 func (p *Producer) Close() {
 	p.Pool.Close()
 }

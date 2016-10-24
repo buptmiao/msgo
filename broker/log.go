@@ -9,28 +9,28 @@ import (
 
 const (
 	//LEVELON
-	LEVELON  = 0
+	LEVELON = 0
 	//LEVELOFF
 	LEVELOFF = 1
 )
 
-//Logger
+//Logger instance
 type Logger struct {
 	l     *log.Logger
 	level int32
 }
 
-//SetLevel
+//SetLevel set switch on/off
 func (l *Logger) SetLevel(level int32) {
 	atomic.StoreInt32(&l.level, level)
 }
 
-//Level
+//Level shows level
 func (l *Logger) Level() int32 {
 	return atomic.LoadInt32(&l.level)
 }
 
-//Printf
+//Printf wrapper the log.Printf
 func (l *Logger) Printf(format string, v ...interface{}) {
 	if l.Level() == LEVELOFF {
 		return
@@ -38,7 +38,7 @@ func (l *Logger) Printf(format string, v ...interface{}) {
 	l.l.Output(2, fmt.Sprintf(format, v...))
 }
 
-//Print
+//Print wrapper the log.Print
 func (l *Logger) Print(v ...interface{}) {
 	if l.Level() == LEVELOFF {
 		return
@@ -46,7 +46,7 @@ func (l *Logger) Print(v ...interface{}) {
 	l.l.Output(2, fmt.Sprint(v...))
 }
 
-//Println
+//Println wrapper the log.Println
 func (l *Logger) Println(v ...interface{}) {
 	if l.Level() == LEVELOFF {
 		return
@@ -69,51 +69,51 @@ func (l *Logger) Println(v ...interface{}) {
 //	os.Exit(1)
 //}
 
-//Panic
+//Panic wrapper the log.Panic
 func (l *Logger) Panic(v ...interface{}) {
 	s := fmt.Sprint(v...)
 	l.l.Output(2, s)
 	panic(s)
 }
 
-//Panicf
+//Panicf wrapper the log.Panicf
 func (l *Logger) Panicf(format string, v ...interface{}) {
 	s := fmt.Sprintf(format, v...)
 	l.l.Output(2, s)
 	panic(s)
 }
 
-//Panicln
+//Panicln wrapper the log.Panicln
 func (l *Logger) Panicln(v ...interface{}) {
 	s := fmt.Sprintln(v...)
 	l.l.Output(2, s)
 	panic(s)
 }
 
-//Flags
+//Flags wrapper the log.Flags
 func (l *Logger) Flags() int {
 	return l.l.Flags()
 }
 
-//SetFlags
+//SetFlags wrapper the log.SetFlags
 func (l *Logger) SetFlags(flag int) {
 	l.l.SetFlags(flag)
 }
 
-//Prefix
+//Prefix wrapper the log.Prefix
 func (l *Logger) Prefix() string {
 	return l.l.Prefix()
 }
 
-//SetPrefix
+//SetPrefix wrapper the log.SetPrefix
 func (l *Logger) SetPrefix(prefix string) {
 	l.l.SetPrefix(prefix)
 }
 
 var (
-	Debug *Logger //Debug
-	Log   *Logger //Log
-	Error *Logger //Error
+	Debug *Logger //Debug level
+	Log   *Logger //Log level
+	Error *Logger //Error level
 )
 
 func init() {
@@ -123,12 +123,12 @@ func init() {
 	Error = &Logger{l: log.New(os.Stderr, "[ERROR]: ", format|log.Llongfile), level: LEVELON}
 }
 
-//EnableDebug
+//EnableDebug enable Debug logs
 func EnableDebug() {
 	Debug.SetLevel(LEVELON)
 }
 
-//DisableDebug
+//DisableDebug disable Debug logs
 func DisableDebug() {
 	Debug.SetLevel(LEVELOFF)
 }

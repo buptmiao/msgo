@@ -6,12 +6,7 @@ import (
 	"log"
 )
 
-type Proto interface {
-	Size() int
-	Unmarshal(data []byte) error
-	MarshalTo(data []byte) (int, error)
-}
-
+//Unmarshal the msg
 func Unmarshal(r io.Reader) (*Message, error) {
 	msgs, err := BatchUnmarshal(r)
 	if err != nil {
@@ -20,10 +15,12 @@ func Unmarshal(r io.Reader) (*Message, error) {
 	return msgs.Msgs[0], nil
 }
 
+//Marshal the msg
 func Marshal(msg *Message, w io.Writer) error {
 	return BatchMarshal(PackageMsgs(msg), w)
 }
 
+//BatchUnmarshal the msgs
 func BatchUnmarshal(r io.Reader) (*MessageList, error) {
 	res := new(MessageList)
 
@@ -47,6 +44,7 @@ func BatchUnmarshal(r io.Reader) (*MessageList, error) {
 	return res, nil
 }
 
+//BatchMarshal the msgs
 func BatchMarshal(msgs *MessageList, w io.Writer) error {
 	size := msgs.Size()
 	buf := make([]byte, size+4)
@@ -65,18 +63,21 @@ func BatchMarshal(msgs *MessageList, w io.Writer) error {
 	return err
 }
 
+//PackageMsgs msgs
 func PackageMsgs(m ...*Message) *MessageList {
 	res := &MessageList{}
 	res.Msgs = m
 	return res
 }
 
+//NewAckMsg creates a Ack msg
 func NewAckMsg() *Message {
 	return &Message{
 		Type: MessageType_Ack,
 	}
 }
 
+//NewSubscribeMsg creates a subscribe msg
 func NewSubscribeMsg(topic string, filter string, cnt string) *Message {
 	return &Message{
 		Topic:  topic,
@@ -85,6 +86,7 @@ func NewSubscribeMsg(topic string, filter string, cnt string) *Message {
 	}
 }
 
+//NewUnSubscribeMsg creates a unSubscribe msg
 func NewUnSubscribeMsg(topic string, filter string) *Message {
 	return &Message{
 		Topic:  topic,
@@ -93,6 +95,7 @@ func NewUnSubscribeMsg(topic string, filter string) *Message {
 	}
 }
 
+//NewPublishMsg creates a publish msg
 func NewPublishMsg(topic string, body []byte) *Message {
 	return &Message{
 		Topic: topic,
@@ -101,12 +104,14 @@ func NewPublishMsg(topic string, body []byte) *Message {
 	}
 }
 
+//NewHeartbeatMsg creates a heartbeat msg
 func NewHeartbeatMsg() *Message {
 	return &Message{
 		Type: MessageType_Heartbeat,
 	}
 }
 
+//NewErrorMsg creates a error msg
 func NewErrorMsg() *Message {
 	return &Message{
 		Type: MessageType_Error,

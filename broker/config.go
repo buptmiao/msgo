@@ -9,7 +9,7 @@ import (
 	"math"
 )
 
-//Configure
+//Configure schema
 type Configure struct {
 	HttpPort int
 	MsgPort  int
@@ -28,7 +28,7 @@ type Configure struct {
 //Config is the default config file
 var Config *Configure = new(Configure)
 
-//LoadConfig
+//LoadConfig load default config and cmd-line flags
 func LoadConfig() {
 	var configFile string
 	//todo the default config Path

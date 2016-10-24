@@ -8,16 +8,20 @@ import (
 	"time"
 )
 
-// pool state
+//pool state
 const (
-	ACTIVE = iota
-	CLOSED
+	ACTIVE = iota //ACTIVE status
+	CLOSED        //CLOSE status
 )
 
 const (
-	DefaultPoolSize      = 10
-	DefaultDialTimeout   = time.Second * 5
-	DefaultPoolTimeout   = time.Second * 5
+	//DefaultPoolSize is 10
+	DefaultPoolSize = 10
+	//DefaultDialTimeout 5s
+	DefaultDialTimeout = time.Second * 5
+	//DefaultPoolTimeout 5s
+	DefaultPoolTimeout = time.Second * 5
+	//DefaultConnPerSecond 500
 	DefaultConnPerSecond = 500
 )
 
@@ -28,11 +32,11 @@ var timers = sync.Pool{
 }
 
 var (
-	//ErrTimeout
+	//ErrTimeout error
 	ErrTimeout = errors.New("get conn time out")
 )
 
-//Conn
+//Conn instance
 type Conn struct {
 	C          net.Conn
 	createTime time.Time
@@ -55,26 +59,23 @@ func newConn(c *ConnPool) (*Conn, error) {
 	return res, nil
 }
 
-// Read
+//Read wrapper net.Conn read
 func (c *Conn) Read(b []byte) (n int, err error) {
 	return c.C.Read(b)
 }
 
-// Write
+//Write wrapper net.Conn write
 func (c *Conn) Write(b []byte) (n int, err error) {
 	return c.C.Write(b)
 }
 
-// Close
+//Close wrapper net.Conn close
 func (c *Conn) Close() error {
 	return c.C.Close()
 }
 
-// ConnPool
-// the definition of Connect pool
-//
-//
-//
+//ConnPool is
+//the definition of Connect pool
 type ConnPool struct {
 	size        int
 	status      int
@@ -89,7 +90,7 @@ type ConnPool struct {
 	idleConn    *list.List
 }
 
-//NewConnPool
+//NewConnPool creates a new connection pool
 func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr string, rate int64) *ConnPool {
 	p := &ConnPool{
 		size:        poolSize,
@@ -109,17 +110,17 @@ func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr stri
 	return p
 }
 
-// NewDefaultConnPool
+//NewDefaultConnPool use some default params
 func NewDefaultConnPool(addr string) *ConnPool {
 	return NewConnPool(DefaultPoolSize, DefaultDialTimeout, DefaultPoolTimeout, addr, DefaultConnPerSecond)
 }
 
-// Size
+//Size returns the size of the cp
 func (p *ConnPool) Size() int {
 	return p.size
 }
 
-// Get
+//Get a connection, if idle is not empty, otherwise create a new one.
 func (p *ConnPool) Get() (*Conn, error) {
 	timer := timers.Get().(*time.Timer)
 	if !timer.Reset(p.poolTimeout) {
@@ -167,13 +168,13 @@ func (p *ConnPool) push(c *Conn) {
 	p.allConn.PushBack(c)
 }
 
-// Put
+//Put the conn into idle
 func (p *ConnPool) Put(c *Conn) {
 	p.pushIdle(c)
 	p.tickets <- struct{}{}
 }
 
-// Remove
+//Remove the conn
 func (p *ConnPool) Remove(c *Conn) {
 	_ = c.Close()
 	p.Mu.Lock()
@@ -187,7 +188,7 @@ func (p *ConnPool) Remove(c *Conn) {
 	p.tickets <- struct{}{}
 }
 
-// Close
+//Close the conn pool
 func (p *ConnPool) Close() {
 	p.status = CLOSED
 	p.Mu.Lock()

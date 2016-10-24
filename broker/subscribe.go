@@ -13,7 +13,7 @@ func NewMsgChan() msgChan {
 	return make(chan []*msg.Message, 1)
 }
 
-//PushBack
+//PushBack action
 func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
@@ -26,7 +26,7 @@ func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	}
 }
 
-//PushFront
+//PushFront action
 func (pc msgChan) PushFront(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
