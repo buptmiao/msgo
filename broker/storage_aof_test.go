@@ -103,8 +103,8 @@ func TestStorageAOF_Rewrite2(t *testing.T) {
 		time.Sleep(time.Millisecond * 200)
 	}
 	inf := aof.Stat()
-	if inf.Size() != 0 {
-		panic("unexpected file size, not zero")
+	if inf.Size() >= 1000 {
+		panic("unexpected file size, not small")
 	}
 
 	aof.Truncate()
