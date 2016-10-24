@@ -11,7 +11,7 @@ import (
 
 func TestSubscribeAndPublish(t *testing.T) {
 	loadConfig()
-	//broker.EnableDebug()
+	broker.EnableDebug()
 	b := broker.GetInstance()
 	go b.Start()
 	addr := fmt.Sprintf("127.0.0.1:%d", broker.Config.MsgPort)
@@ -21,8 +21,8 @@ func TestSubscribeAndPublish(t *testing.T) {
 	err := consumer.Subscribe("msgo", "msgo", func(m ...*msg.Message) error {
 		for _, v := range m {
 			fmt.Println(string(v.GetBody()))
+			wg.Done()
 		}
-		wg.Done()
 		return nil
 	})
 	if err != nil {
