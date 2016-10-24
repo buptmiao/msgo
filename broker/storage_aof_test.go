@@ -1,10 +1,10 @@
 package broker_test
 
 import (
-	"testing"
 	"github.com/buptmiao/msgo/broker"
 	"math"
 	"reflect"
+	"testing"
 	"time"
 )
 
@@ -90,7 +90,7 @@ func TestStorageAOF_Rewrite2(t *testing.T) {
 	if aof == nil {
 		panic("New aof failed")
 	}
-	for i := 0; i < 10001; i++ {
+	for i := 0; i < 10002; i++ {
 		m1 := newMessage()
 		aof.Save(m1)
 		aof.Delete(m1)
@@ -100,7 +100,7 @@ func TestStorageAOF_Rewrite2(t *testing.T) {
 		if aof.DeleteOps() == 0 {
 			break
 		}
-		time.Sleep(time.Millisecond)
+		time.Sleep(time.Millisecond * 200)
 	}
 	inf := aof.Stat()
 	if inf.Size() != 0 {

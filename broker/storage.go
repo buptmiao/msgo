@@ -3,12 +3,12 @@ package broker
 import (
 	"time"
 
-	"github.com/buptmiao/msgo/msg"
-	"github.com/boltdb/bolt"
-	"fmt"
-	"sync/atomic"
 	"bytes"
+	"fmt"
+	"github.com/boltdb/bolt"
+	"github.com/buptmiao/msgo/msg"
 	"os"
+	"sync/atomic"
 )
 
 type Storage interface {

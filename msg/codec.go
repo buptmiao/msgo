@@ -1,8 +1,8 @@
 package msg
 
 import (
-	"io"
 	"encoding/binary"
+	"io"
 	"log"
 )
 
@@ -49,7 +49,7 @@ func BatchUnmarshal(r io.Reader) (*MessageList, error) {
 
 func BatchMarshal(msgs *MessageList, w io.Writer) error {
 	size := msgs.Size()
-	buf := make([]byte, size + 4)
+	buf := make([]byte, size+4)
 
 	n, err := msgs.MarshalTo(buf[4:])
 
@@ -73,42 +73,42 @@ func PackageMsgs(m ...*Message) *MessageList {
 
 func NewAckMsg() *Message {
 	return &Message{
-		Type  : MessageType_Ack,
+		Type: MessageType_Ack,
 	}
 }
 
 func NewSubscribeMsg(topic string, filter string, cnt string) *Message {
 	return &Message{
-		Topic : topic,
+		Topic:  topic,
 		Filter: filter,
-		Type  : MessageType_Subscribe,
+		Type:   MessageType_Subscribe,
 	}
 }
 
 func NewUnSubscribeMsg(topic string, filter string) *Message {
 	return &Message{
-		Topic : topic,
+		Topic:  topic,
 		Filter: filter,
-		Type  : MessageType_UnSubscribe,
+		Type:   MessageType_UnSubscribe,
 	}
 }
 
 func NewPublishMsg(topic string, body []byte) *Message {
 	return &Message{
-		Topic : topic,
-		Body: body,
-		Type  : MessageType_Publish,
+		Topic: topic,
+		Body:  body,
+		Type:  MessageType_Publish,
 	}
 }
 
 func NewHeartbeatMsg() *Message {
 	return &Message{
-		Type  : MessageType_Heartbeat,
+		Type: MessageType_Heartbeat,
 	}
 }
 
 func NewErrorMsg() *Message {
 	return &Message{
-		Type  : MessageType_Error,
+		Type: MessageType_Error,
 	}
 }

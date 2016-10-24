@@ -1,10 +1,10 @@
 package main
 
 import (
-	"github.com/buptmiao/msgo/client"
 	"flag"
-	"github.com/buptmiao/msgo/msg"
 	"fmt"
+	"github.com/buptmiao/msgo/client"
+	"github.com/buptmiao/msgo/msg"
 	"sync"
 )
 

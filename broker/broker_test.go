@@ -1,12 +1,13 @@
 package broker_test
 
 import (
-	"testing"
+	"fmt"
 	"github.com/buptmiao/msgo/broker"
 	"github.com/buptmiao/msgo/client"
 	"github.com/buptmiao/msgo/msg"
-	"fmt"
 	"sync"
+	"testing"
+	"time"
 )
 
 func TestSubscribeAndPublish(t *testing.T) {
@@ -29,6 +30,16 @@ func TestSubscribeAndPublish(t *testing.T) {
 		panic(err)
 	}
 
+	err = consumer.Subscribe("delay", "msgo", func(m ...*msg.Message) error {
+		for _, v := range m {
+			fmt.Println(string(v.GetBody()))
+		}
+		time.Sleep(time.Second * 6)
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
 	producer := client.NewProducer(addr)
 	producer.PublishDirect("msgo", "msgo", []byte("hello world1"))
 	producer.PublishDirectPersist("msgo", "msgo", []byte("hello world2"))
@@ -38,7 +49,7 @@ func TestSubscribeAndPublish(t *testing.T) {
 	wg.Wait()
 	wg.Add(1)
 	fmt.Println("update")
-	consumer.Subscribe("msgo", "msgo2",func(m ...*msg.Message) error {
+	consumer.Subscribe("msgo", "msgo2", func(m ...*msg.Message) error {
 		for _, v := range m {
 			fmt.Println(string(v.GetBody()))
 			wg.Done()
@@ -46,11 +57,15 @@ func TestSubscribeAndPublish(t *testing.T) {
 		return nil
 	})
 	producer.PublishDirect("msgo", "msgo2", []byte("hello world5"))
+	producer.PublishDirect("delay", "msgo", []byte("wait"))
 	wg.Wait()
 	err = consumer.UnSubscribe("msgo")
 	if err != nil {
 		panic(err)
 	}
+	// wait to test delay
+	time.Sleep(time.Second * 7)
+	consumer.Close()
 	b.Stop()
 	b.Storage().Truncate()
 }

@@ -2,9 +2,9 @@ package main
 
 import (
 	"github.com/buptmiao/msgo/broker"
-	_ "net/http/pprof"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 )
 
 func main() {

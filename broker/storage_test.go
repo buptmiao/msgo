@@ -1,16 +1,16 @@
 package broker_test
 
 import (
-	"testing"
+	"encoding/binary"
+	"fmt"
 	"github.com/buptmiao/msgo/broker"
 	"github.com/buptmiao/msgo/msg"
 	"math/rand"
-	"encoding/binary"
-	"time"
 	"reflect"
 	"sync"
 	"sync/atomic"
-	"fmt"
+	"testing"
+	"time"
 )
 
 func TestInitClose(t *testing.T) {
@@ -18,10 +18,10 @@ func TestInitClose(t *testing.T) {
 	stable.Truncate()
 }
 
-func randomBytes(len int) []byte{
+func randomBytes(len int) []byte {
 	len = ((len + 7) >> 3) << 3
 	res := make([]byte, len)
-	for i := 0; i < len; i+=8 {
+	for i := 0; i < len; i += 8 {
 		s := rand.Int63()
 		binary.BigEndian.PutUint64(res[i:], uint64(s))
 	}
@@ -31,7 +31,7 @@ func randomBytes(len int) []byte{
 func randomString(len int, rang int64) string {
 	len = ((len + 7) >> 3) << 3
 	res := make([]byte, len)
-	for i := 0; i < len; i+=8 {
+	for i := 0; i < len; i += 8 {
 		s := rand.Int63n(rang)
 		binary.BigEndian.PutUint64(res[i:], uint64(s))
 	}
@@ -59,7 +59,7 @@ func TestSaveAndGetMsg(t *testing.T) {
 	stable := broker.NewStable()
 	m1 := newMessage()
 	stable.Save(m1)
-	m2,err := stable.Get()
+	m2, err := stable.Get()
 
 	if err != nil || !reflect.DeepEqual(m1, m2) {
 		panic("m1 != m2")

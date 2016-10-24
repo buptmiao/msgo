@@ -2,8 +2,8 @@ package client
 
 import (
 	"github.com/buptmiao/msgo/msg"
-	"time"
 	"log"
+	"time"
 )
 
 type Producer struct {
@@ -30,17 +30,17 @@ func (p *Producer) publish(topic string, filter string, typ int32, body []byte, 
 	}
 	defer p.Pool.Put(c)
 	m := &msg.Message{
-		Type: msg.MessageType_Publish,
-		Topic: topic,
-		Filter: filter,
-		Body:body,
+		Type:      msg.MessageType_Publish,
+		Topic:     topic,
+		Filter:    filter,
+		Body:      body,
 		Timestamp: time.Now().UnixNano(),
-		PubType: msg.PublishType(typ),
-		Persist: persist,
-		NeedAck: needAck,
+		PubType:   msg.PublishType(typ),
+		Persist:   persist,
+		NeedAck:   needAck,
 	}
 	err = msg.BatchMarshal(msg.PackageMsgs(m), c)
-	if err != nil || !needAck{
+	if err != nil || !needAck {
 		log.Println(err, 1)
 		return err
 	}

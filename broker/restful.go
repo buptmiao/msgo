@@ -1,8 +1,8 @@
 package broker
 
 import (
-	"net/http"
 	"net"
+	"net/http"
 	"time"
 )
 
@@ -13,7 +13,7 @@ func ServeHTTP(l net.Listener) {
 	mux.HandleFunc("/api", ServeAPI)
 
 	srv := &http.Server{
-		Handler: mux,
+		Handler:        mux,
 		ReadTimeout:    2 * time.Second,
 		WriteTimeout:   2 * time.Second,
 		MaxHeaderBytes: 1 << 20,

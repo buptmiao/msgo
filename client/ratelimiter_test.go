@@ -1,11 +1,11 @@
 package client_test
 
 import (
-	"testing"
-	"github.com/buptmiao/msgo/client"
-	"time"
 	"fmt"
+	"github.com/buptmiao/msgo/client"
 	"sync"
+	"testing"
+	"time"
 )
 
 func TestConcurrent(t *testing.T) {
@@ -15,7 +15,7 @@ func TestConcurrent(t *testing.T) {
 	wg.Add(10)
 	for i := 0; i < 10; i++ {
 		go func() {
-			for j:=0 ; j < 10; j++ {
+			for j := 0; j < 10; j++ {
 				rl.AcquireCount(5)
 			}
 			wg.Done()
@@ -24,7 +24,7 @@ func TestConcurrent(t *testing.T) {
 	wg.Wait()
 	elapse := time.Since(start)
 	fmt.Println(elapse)
-	if elapse < time.Second * 4 || elapse > time.Second * 6 {
+	if elapse < time.Second*4 || elapse > time.Second*6 {
 		panic("rate limiter not exact 2")
 	}
 }
@@ -37,7 +37,7 @@ func TestNewRateLimiter(t *testing.T) {
 	}
 	elapse := time.Since(start)
 	fmt.Println(elapse)
-	if elapse < time.Second * 4 || elapse > time.Second * 6 {
+	if elapse < time.Second*4 || elapse > time.Second*6 {
 		panic("rate limiter not exact 1")
 	}
 }
@@ -50,7 +50,7 @@ func TestRateLimiter_Acquire(t *testing.T) {
 	}
 	elapse := time.Since(start)
 	fmt.Println(elapse)
-	if elapse < time.Second * 4 || elapse > time.Second * 6 {
+	if elapse < time.Second*4 || elapse > time.Second*6 {
 		panic("rate limiter not exact 1")
 	}
 }
@@ -63,7 +63,7 @@ func TestRateLimiter_AcquireCount(t *testing.T) {
 	}
 	elapse := time.Since(start)
 	fmt.Println(elapse)
-	if elapse < time.Second * 4 || elapse > time.Second * 6 {
+	if elapse < time.Second*4 || elapse > time.Second*6 {
 		panic("rate limiter not exact 2")
 	}
 }
@@ -78,7 +78,7 @@ func TestRateLimiter_TryAcquire(t *testing.T) {
 	}
 	elapse := time.Since(start)
 	fmt.Println(elapse)
-	if elapse < time.Second * 4 || elapse > time.Second * 6 {
+	if elapse < time.Second*4 || elapse > time.Second*6 {
 		panic("rate limiter not exact 2")
 	}
 }

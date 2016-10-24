@@ -1,26 +1,26 @@
 package broker
 
 import (
-	"github.com/buptmiao/msgo/msg"
-	"os"
-	"encoding/binary"
-	"sync/atomic"
-	"fmt"
-	"sync"
 	"container/list"
+	"encoding/binary"
 	"errors"
-	"time"
-	"runtime"
+	"fmt"
+	"github.com/buptmiao/msgo/msg"
 	"math"
+	"os"
+	"runtime"
+	"sync"
+	"sync/atomic"
+	"time"
 )
 
 const (
-	SAVE = 1
+	SAVE   = 1
 	DELETE = 0
 
-	NEVERSYNC = 0
+	NEVERSYNC   = 0
 	EVERYSECOND = 1
-	ALWAYSSYNC = 2
+	ALWAYSSYNC  = 2
 )
 
 var (
@@ -28,23 +28,23 @@ var (
 )
 
 type StorageAOF struct {
-	size          int64
-	filename      string
-	aof           *os.File
-	rewriteflag   int32
+	size        int64
+	filename    string
+	aof         *os.File
+	rewriteflag int32
 
-	MaxID         uint64
-	deleteOps     uint64
+	MaxID     uint64
+	deleteOps uint64
 	// mutex of file and buffer operation
-	aofMu         sync.Mutex
+	aofMu sync.Mutex
 
 	// lasttime
-	syncType      int32
-	threshold     int
+	syncType  int32
+	threshold int
 
-	lasttime      int64
+	lasttime int64
 
-	msgs          *list.List
+	msgs *list.List
 	// rewrite, which ensure sequence of msgs
 	saveBuffer    [][]byte
 	deleteSet     map[uint64]struct{}
@@ -62,7 +62,7 @@ func NewStorageAOF(filename string, syncType int32, threshold int) *StorageAOF {
 	res.saveBuffer = make([][]byte, 0)
 	res.deleteSet = make(map[uint64]struct{})
 	res.msgs = list.New()
-	res.aof, err = os.OpenFile(res.filename, os.O_WRONLY | os.O_APPEND | os.O_CREATE, 0666)
+	res.aof, err = os.OpenFile(res.filename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	PanicIfErr(err)
 	res.Rewrite(math.MaxUint64, true)
 	return res
@@ -152,16 +152,16 @@ func (s *StorageAOF) toBinary(cmd uint8, m ...*msg.Message) []byte {
 		for _, v := range m {
 			res[offset] = cmd
 			size := v.Size()
-			binary.BigEndian.PutUint32(res[offset + 1:], uint32(size))
-			v.MarshalTo(res[offset + 5:])
+			binary.BigEndian.PutUint32(res[offset+1:], uint32(size))
+			v.MarshalTo(res[offset+5:])
 			offset += 1 + 4 + size
 		}
 	} else {
 		size := (1 + 8) * len(m)
 		res = make([]byte, size)
 		for i, v := range m {
-			res[i * 9] = DELETE
-			binary.BigEndian.PutUint64(res[i * 9 + 1:], v.GetMsgId())
+			res[i*9] = DELETE
+			binary.BigEndian.PutUint64(res[i*9+1:], v.GetMsgId())
 		}
 	}
 	return res
@@ -185,7 +185,7 @@ func (s *StorageAOF) Rewrite(curMaxID uint64, startup bool) bool {
 	PanicIfErr(err)
 	tmpfilename := fmt.Sprintf("tmp_%s", s.filename)
 	os.Remove(tmpfilename)
-	newfile, err := os.OpenFile(tmpfilename, os.O_WRONLY | os.O_APPEND | os.O_CREATE, 0666)
+	newfile, err := os.OpenFile(tmpfilename, os.O_WRONLY|os.O_APPEND|os.O_CREATE, 0666)
 	PanicIfErr(err)
 	s.load(oldfile)
 	deleteOps := s.store(curMaxID, newfile, startup)
@@ -250,7 +250,7 @@ func (s *StorageAOF) store(curMaxID uint64, newfile *os.File, startup bool) uint
 		}
 		if _, ok := s.deleteSet[msg.MsgId]; ok {
 			delete(s.deleteSet, msg.MsgId)
-			res ++
+			res++
 			continue
 		}
 		// when init, push the msg to s.msgs for recover the msgs
@@ -261,7 +261,7 @@ func (s *StorageAOF) store(curMaxID uint64, newfile *os.File, startup bool) uint
 		if msg.MsgId > s.MaxID {
 			s.MaxID = msg.MsgId
 		}
-		bytes := make([]byte, 1 + 4 + len(v))
+		bytes := make([]byte, 1+4+len(v))
 		bytes[0] = SAVE
 		binary.BigEndian.PutUint32(bytes[1:], uint32(len(v)))
 		copy(bytes[5:], v)
@@ -278,7 +278,7 @@ func (s *StorageAOF) sync() {
 	case NEVERSYNC:
 		return
 	case EVERYSECOND:
-		if time.Now().UnixNano() - s.lasttime > int64(time.Second) {
+		if time.Now().UnixNano()-s.lasttime > int64(time.Second) {
 			s.aof.Sync()
 			s.lasttime = time.Now().UnixNano()
 		}
@@ -309,9 +309,6 @@ func (s *StorageAOF) DeleteOps() uint64 {
 }
 
 func (s *StorageAOF) Stat() os.FileInfo {
-	inf, err := s.aof.Stat()
-	if err != nil {
-		return nil
-	}
+	inf, _ := s.aof.Stat()
 	return inf
 }

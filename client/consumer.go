@@ -1,11 +1,11 @@
 package client
 
 import (
+	"errors"
 	"github.com/buptmiao/msgo/msg"
+	"io"
 	"log"
 	"time"
-	"io"
-	"errors"
 )
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -19,8 +19,8 @@ var (
 )
 
 type subscribe struct {
-	topic     string
-	filter    string
+	topic  string
+	filter string
 	//remain msg number, if negative, it means unlimited.
 	remain    int64
 	consumer  *Consumer
@@ -58,12 +58,12 @@ func (s *subscribe) run() {
 
 		err = s.h.Handle(m.GetMsgs()...)
 		if err != nil {
-			log.Fatalln(err)  // for debug
+			log.Println(err) // for debug
 			break
 		}
 		err = s.sendAck()
 		if err != nil {
-			log.Fatalln(err)  // for debug
+			log.Println(err) // for debug
 			break
 		}
 	}
@@ -92,9 +92,9 @@ func (s *subscribe) recvMsgs() ([]*msg.Message, error) {
 func (s *subscribe) sendAck() error {
 	// create ack msg
 	m := &msg.Message{
-		Type: msg.MessageType_Ack,
-		Topic: s.topic,
-		Filter: s.filter,
+		Type:      msg.MessageType_Ack,
+		Topic:     s.topic,
+		Filter:    s.filter,
 		Timestamp: time.Now().UnixNano(),
 	}
 	return msg.BatchMarshal(msg.PackageMsgs(m), s.c)
@@ -103,12 +103,12 @@ func (s *subscribe) sendAck() error {
 func (s *subscribe) sendSub(topic string, filter string, count int64) error {
 	//create subscribe msg
 	m := &msg.Message{
-		Type: msg.MessageType_Subscribe,
-		Topic: topic,
-		Filter: filter,
-		Count: count,
+		Type:      msg.MessageType_Subscribe,
+		Topic:     topic,
+		Filter:    filter,
+		Count:     count,
 		Timestamp: time.Now().UnixNano(),
-		NeedAck: true,
+		NeedAck:   true,
 	}
 	return msg.BatchMarshal(msg.PackageMsgs(m), s.c)
 }
@@ -116,10 +116,10 @@ func (s *subscribe) sendSub(topic string, filter string, count int64) error {
 func (s *subscribe) sendUnSub(topic string) error {
 	//create subscribe msg
 	m := &msg.Message{
-		Type: msg.MessageType_UnSubscribe,
-		Topic: topic,
+		Type:      msg.MessageType_UnSubscribe,
+		Topic:     topic,
 		Timestamp: time.Now().UnixNano(),
-		NeedAck: false,
+		NeedAck:   false,
 	}
 	return msg.BatchMarshal(msg.PackageMsgs(m), s.c)
 }
@@ -140,18 +140,17 @@ type DefaultHandler struct {
 	h func(...*msg.Message) error
 }
 
-func (d *DefaultHandler)Before() {
+func (d *DefaultHandler) Before() {
 	return
 }
 
-func (d *DefaultHandler)Handle(msgs ...*msg.Message) error {
+func (d *DefaultHandler) Handle(msgs ...*msg.Message) error {
 	return d.h(msgs...)
 }
 
-func (d *DefaultHandler)After() {
+func (d *DefaultHandler) After() {
 	return
 }
-
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 // Consumer
@@ -159,7 +158,7 @@ func (d *DefaultHandler)After() {
 //
 /////////////////////////////////////////////////////////////////////////////////////////////
 type Consumer struct {
-	Pool       *ConnPool
+	Pool *ConnPool
 	// classify by topic
 	subscribes map[string]*subscribe
 }
@@ -170,6 +169,7 @@ func NewConsumer(addr string) *Consumer {
 	res.subscribes = make(map[string]*subscribe)
 	return res
 }
+
 //
 //
 //

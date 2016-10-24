@@ -1,11 +1,10 @@
 package main
 
 import (
-	"github.com/buptmiao/msgo/client"
 	"flag"
+	"github.com/buptmiao/msgo/client"
 	"log"
 )
-
 
 func main() {
 	var addr string

@@ -1,19 +1,19 @@
 package broker
 
 import (
+	"fmt"
 	"log"
 	"os"
-	"fmt"
 	"sync/atomic"
 )
 
 const (
-	LEVELON = 0
+	LEVELON  = 0
 	LEVELOFF = 1
 )
 
 type Logger struct {
-	l *log.Logger
+	l     *log.Logger
 	level int32
 }
 
@@ -21,7 +21,7 @@ func (l *Logger) SetLevel(level int32) {
 	atomic.StoreInt32(&l.level, level)
 }
 
-func (l *Logger) Level() int32{
+func (l *Logger) Level() int32 {
 	return atomic.LoadInt32(&l.level)
 }
 
@@ -45,6 +45,7 @@ func (l *Logger) Println(v ...interface{}) {
 	}
 	l.l.Output(2, fmt.Sprintln(v...))
 }
+
 //func (l *Logger) Fatal(v ...interface{}) {
 //	l.l.Output(2, fmt.Sprint(v...))
 //	os.Exit(1)
@@ -102,9 +103,9 @@ var (
 
 func init() {
 	format := log.Ldate | log.Ltime | log.Lshortfile
-	Debug = &Logger{l : log.New(os.Stdout, "[DEBUG]: ", format|log.Llongfile), level: LEVELOFF}
-	Log = &Logger{l : log.New(os.Stdout, "[INFO]: ", format),  level: LEVELON}
-	Error = &Logger{l : log.New(os.Stderr, "[ERROR]: ", format|log.Llongfile), level: LEVELON}
+	Debug = &Logger{l: log.New(os.Stdout, "[DEBUG]: ", format|log.Llongfile), level: LEVELOFF}
+	Log = &Logger{l: log.New(os.Stdout, "[INFO]: ", format), level: LEVELON}
+	Error = &Logger{l: log.New(os.Stderr, "[ERROR]: ", format|log.Llongfile), level: LEVELON}
 }
 
 func EnableDebug() {

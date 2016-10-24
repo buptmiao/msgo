@@ -38,16 +38,16 @@ func (pc msgChan) PushFront(cmd ...*msg.Message) {
 
 // A channel is defined as a subscribe relationship.
 type subscribe struct {
-	topic   *TopicQueue
-	client  *Client
-	filter  string
-	buf     msgChan
+	topic  *TopicQueue
+	client *Client
+	filter string
+	buf    msgChan
 
 	NeedAck bool
 	ack     chan struct{}
 	wait    bool
 
-	remain  int64
+	remain int64
 }
 
 func newsubscribe(topic *TopicQueue, client *Client, filter string, cnt int64, ack bool) *subscribe {
@@ -81,7 +81,7 @@ func (s *subscribe) Run() {
 			if !s.NeedAck {
 				Error.Println("unexpected ack")
 			}
-		//ignore
+			//ignore
 			Error.Println("unexpected ack, ignore it", s)
 		case <-s.client.stop:
 			Debug.Println("subscribe stop by client")
@@ -92,17 +92,17 @@ func (s *subscribe) Run() {
 
 func (s *subscribe) sendMsg(msgs []*msg.Message) {
 	s.ack = make(chan struct{}, Config.Retry)
-	for i := 0; i < Config.Retry; i ++ {
+	for i := 0; i < Config.Retry+1; i++ {
 		s.client.sendMsg(msgs...)
 
 		if s.NeedAck {
 			select {
 			case <-s.ack:
-			// todo delete msg.
+				// todo delete msg.
 				Debug.Println("recv ack")
 				return
 			case <-time.After(time.Second * 5):
-				Error.Printf("time out! client:%v no ack to %s, time %d \n", s.client.conn.RemoteAddr(), s.topic.topic, i + 1)
+				Error.Printf("time out! client:%v no ack to %s, time %d \n", s.client.conn.RemoteAddr(), s.topic.topic, i+1)
 			}
 		} else {
 			return

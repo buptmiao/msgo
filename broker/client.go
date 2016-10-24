@@ -1,19 +1,19 @@
 package broker
 
 import (
-	"net"
-	"github.com/buptmiao/msgo/msg"
-	"sync"
 	"fmt"
+	"github.com/buptmiao/msgo/msg"
 	"io"
+	"net"
+	"sync"
 )
 
 type Client struct {
 	status int
 	sync.Mutex
-	broker *Broker
-	conn net.Conn
-	stop chan struct{}
+	broker     *Broker
+	conn       net.Conn
+	stop       chan struct{}
 	subscribes map[string]*subscribe
 }
 
@@ -96,7 +96,7 @@ func (c *Client) handleSubscribe(m *msg.Message) {
 		sub = newsubscribe(topic, c, m.GetFilter(), m.GetCount(), m.GetNeedAck())
 		c.subscribes[m.GetTopic()] = sub
 	} else {
-		Debug.Printf("%v update topic %s\n",c.conn.RemoteAddr(), m.GetTopic())
+		Debug.Printf("%v update topic %s\n", c.conn.RemoteAddr(), m.GetTopic())
 		sub.update(m.GetFilter(), m.GetCount())
 	}
 }

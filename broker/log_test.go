@@ -1,13 +1,13 @@
 package broker_test
 
 import (
-	"testing"
 	"github.com/buptmiao/msgo/broker"
+	"testing"
 )
 
 func EatPanic(s chan struct{}) {
 	if r := recover(); r != nil {
-		s <- struct {}{}
+		s <- struct{}{}
 	}
 }
 

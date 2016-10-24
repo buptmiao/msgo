@@ -1,13 +1,13 @@
 package client_test
 
 import (
-	"testing"
-	"github.com/buptmiao/msgo/client"
-	"time"
-	"net"
 	"fmt"
-	"sync/atomic"
+	"github.com/buptmiao/msgo/client"
+	"net"
 	"sync"
+	"sync/atomic"
+	"testing"
+	"time"
 )
 
 func testServer(addr string, count *int64, expected int64, wait chan struct{}) net.Listener {
@@ -22,7 +22,7 @@ func testServer(addr string, count *int64, expected int64, wait chan struct{}) n
 				continue
 			}
 			if atomic.AddInt64(count, 1) == expected {
-				wait <- struct {}{}
+				wait <- struct{}{}
 			}
 			conn.Close()
 		}
@@ -32,7 +32,7 @@ func testServer(addr string, count *int64, expected int64, wait chan struct{}) n
 
 func TestNewConnPool(t *testing.T) {
 	addr := ":12345"
-	pool := client.NewConnPool(100, time.Second * 3, time.Second * 3, addr, 100)
+	pool := client.NewConnPool(100, time.Second*3, time.Second*3, addr, 100)
 	if pool == nil {
 		panic("create connect pool failed")
 	}
@@ -43,7 +43,7 @@ func TestConnPoolOperation(t *testing.T) {
 	var count int64
 	wait := make(chan struct{})
 	listener := testServer(addr, &count, 100, wait)
-	pool := client.NewConnPool(100, time.Second * 3, time.Second * 3, addr, 100)
+	pool := client.NewConnPool(100, time.Second*3, time.Second*3, addr, 100)
 	if pool == nil {
 		panic("create connect pool failed")
 	}
@@ -69,7 +69,7 @@ func TestConnPool_Remove(t *testing.T) {
 	var count int64
 	wait := make(chan struct{})
 	listener := testServer(addr, &count, 1000, wait)
-	pool := client.NewConnPool(100, time.Second * 3, time.Second * 3, addr, 1000)
+	pool := client.NewConnPool(100, time.Second*3, time.Second*3, addr, 1000)
 	if pool == nil {
 		panic("create connect pool failed")
 	}
@@ -94,7 +94,7 @@ func TestConnPoolConcurrency(t *testing.T) {
 	var count int64
 	wait := make(chan struct{})
 	listener := testServer(addr, &count, 100, wait)
-	pool := client.NewConnPool(100, time.Second * 3, time.Second * 3, addr, 1000)
+	pool := client.NewConnPool(100, time.Second*3, time.Second*3, addr, 1000)
 	if pool == nil {
 		panic("create connect pool failed")
 	}

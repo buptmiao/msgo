@@ -1,9 +1,9 @@
 package broker_test
 
 import (
-	"testing"
 	"github.com/buptmiao/msgo/broker"
 	"sync"
+	"testing"
 )
 
 // Only one broker
@@ -17,7 +17,7 @@ func TestArbitrateConfigs(t *testing.T) {
 	s := make(chan struct{}, 1)
 	Config := &broker.Configure{
 		HttpPort: 12345,
-		MsgPort: 12345,
+		MsgPort:  12345,
 	}
 	func() {
 		defer EatPanic(s)
@@ -27,7 +27,7 @@ func TestArbitrateConfigs(t *testing.T) {
 
 	Config = &broker.Configure{
 		HttpPort: 1000,
-		MsgPort: 12345,
+		MsgPort:  12345,
 	}
 	func() {
 		defer EatPanic(s)
@@ -37,7 +37,7 @@ func TestArbitrateConfigs(t *testing.T) {
 
 	Config = &broker.Configure{
 		HttpPort: 12345,
-		MsgPort: 1000,
+		MsgPort:  1000,
 	}
 	func() {
 		defer EatPanic(s)
@@ -47,8 +47,8 @@ func TestArbitrateConfigs(t *testing.T) {
 
 	Config = &broker.Configure{
 		HttpPort: 12345,
-		MsgPort: 12346,
-		Retry: 11,
+		MsgPort:  12346,
+		Retry:    11,
 	}
 	broker.ArbitrateConfigs(Config)
 	if Config.Retry != 10 {
@@ -57,8 +57,8 @@ func TestArbitrateConfigs(t *testing.T) {
 
 	Config = &broker.Configure{
 		HttpPort: 12345,
-		MsgPort: 12346,
-		Retry: 0,
+		MsgPort:  12346,
+		Retry:    0,
 	}
 	broker.ArbitrateConfigs(Config)
 	if Config.Retry != 1 {
@@ -67,8 +67,8 @@ func TestArbitrateConfigs(t *testing.T) {
 
 	Config = &broker.Configure{
 		HttpPort: 12345,
-		MsgPort: 12346,
-		Retry: 5,
+		MsgPort:  12346,
+		Retry:    5,
 		SyncType: 3,
 	}
 	broker.ArbitrateConfigs(Config)
@@ -77,9 +77,9 @@ func TestArbitrateConfigs(t *testing.T) {
 	}
 
 	Config = &broker.Configure{
-		HttpPort: 12345,
-		MsgPort: 12346,
-		Retry: 5,
+		HttpPort:  12345,
+		MsgPort:   12346,
+		Retry:     5,
 		Threshold: 100,
 	}
 	broker.ArbitrateConfigs(Config)
@@ -88,9 +88,9 @@ func TestArbitrateConfigs(t *testing.T) {
 	}
 
 	Config = &broker.Configure{
-		HttpPort: 12345,
-		MsgPort: 12346,
-		Retry: 5,
+		HttpPort:  12345,
+		MsgPort:   12346,
+		Retry:     5,
 		Threshold: 10000000,
 	}
 	broker.ArbitrateConfigs(Config)

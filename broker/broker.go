@@ -5,13 +5,13 @@ import (
 	"sync"
 )
 
-const(
+const (
 	RUNNING = iota
 	STOP
 )
 
 type Broker struct {
-	msg net.Listener
+	msg  net.Listener
 	http net.Listener
 
 	stable Storage
@@ -19,7 +19,7 @@ type Broker struct {
 	status int
 
 	topicMu sync.RWMutex
-	topics map[string]*TopicQueue
+	topics  map[string]*TopicQueue
 }
 
 // Only one broker
@@ -46,10 +46,9 @@ func NewBroker() {
 
 	if Config.Aof != "" {
 		broker.stable = NewStorageAOF(Config.Aof, int32(Config.SyncType), Config.Threshold)
-	}else{
+	} else {
 		broker.stable = NewStable()
 	}
-
 
 	DefaultBroker = broker
 }

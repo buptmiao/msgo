@@ -10,14 +10,14 @@ import (
 )
 
 type Configure struct {
-	HttpPort  int
-	MsgPort   int
+	HttpPort int
+	MsgPort  int
 
-	Auth      bool
-	UserName  string
-	Token     string
+	Auth     bool
+	UserName string
+	Token    string
 
-	Retry     int
+	Retry int
 
 	Aof       string
 	SyncType  int

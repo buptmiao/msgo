@@ -1,11 +1,11 @@
 package client
 
 import (
+	"container/list"
+	"errors"
+	"net"
 	"sync"
 	"time"
-	"container/list"
-	"net"
-	"errors"
 )
 
 // pool state
@@ -15,9 +15,9 @@ const (
 )
 
 const (
-	DefaultPoolSize = 10
-	DefaultDialTimeout = time.Second * 5
-	DefaultPoolTimeout = time.Second * 5
+	DefaultPoolSize      = 10
+	DefaultDialTimeout   = time.Second * 5
+	DefaultPoolTimeout   = time.Second * 5
 	DefaultConnPerSecond = 500
 )
 
@@ -32,12 +32,12 @@ var (
 )
 
 type Conn struct {
-	C           net.Conn
-	createTime  time.Time
-	totalCount  int64
+	C          net.Conn
+	createTime time.Time
+	totalCount int64
 
 	//avglifetime int64
-	pool        *ConnPool
+	pool *ConnPool
 }
 
 func newConn(c *ConnPool) (*Conn, error) {
@@ -53,11 +53,11 @@ func newConn(c *ConnPool) (*Conn, error) {
 	return res, nil
 }
 
-func (c *Conn) Read(b []byte) (n int, err error){
+func (c *Conn) Read(b []byte) (n int, err error) {
 	return c.C.Read(b)
 }
 
-func (c *Conn) Write(b []byte) (n int, err error){
+func (c *Conn) Write(b []byte) (n int, err error) {
 	return c.C.Write(b)
 }
 
@@ -90,11 +90,11 @@ func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr stri
 		timeout:     dialTimeout,
 		poolTimeout: poolTimeout,
 		remoteAddr:  addr,
-		limiter: 	 NewRateLimiter(rate, time.Second),
+		limiter:     NewRateLimiter(rate, time.Second),
 
-		tickets:     make(chan struct{}, poolSize),
-		allConn:     list.New(),
-		idleConn:    list.New(),
+		tickets:  make(chan struct{}, poolSize),
+		allConn:  list.New(),
+		idleConn: list.New(),
 	}
 	for i := 0; i < poolSize; i++ {
 		p.tickets <- struct{}{}

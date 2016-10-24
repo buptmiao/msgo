@@ -9,21 +9,20 @@ import (
 
 type TopicQueue struct {
 	broker *Broker
+	status int
+	topic  string
 
-	topic string
-
-	subscribeMu sync.RWMutex
-	subscribes *list.List
+	subscribeMu  sync.RWMutex
+	subscribes   *list.List
 	subscribeSet map[*subscribe]*list.Element
 	//	the size of the topicqueue
 	size int64
 
 	condMu *sync.Mutex
-	cond *sync.Cond
+	cond   *sync.Cond
 
-	buf msgChan
+	buf  msgChan
 	stop chan struct{}
-
 }
 
 func NewTopicQueue(broker *Broker, topic string) *TopicQueue {
@@ -44,6 +43,7 @@ func NewTopicQueue(broker *Broker, topic string) *TopicQueue {
 }
 
 func (t *TopicQueue) Run() {
+	t.status = RUNNING
 	for {
 		for atomic.LoadInt64(&t.size) <= 0 {
 			t.condMu.Lock()
@@ -51,18 +51,23 @@ func (t *TopicQueue) Run() {
 			t.condMu.Unlock()
 		}
 		select {
-		case msgs := <- t.buf:
+		case msgs := <-t.buf:
 			Debug.Println("topic msgs", len(msgs))
 			t.dispatch(msgs)
 		case <-t.stop:
+			t.status = STOP
 			Log.Println("topic %s closed", t.topic)
 			return
 		}
 	}
 }
 
-func (t *TopicQueue) NumberOfSubscribers() int {
-	return len(t.subscribeSet)
+func (t *TopicQueue) Status() int {
+	return t.status
+}
+
+func (t *TopicQueue) NumberOfSubscribers() int64 {
+	return atomic.LoadInt64(&t.size)
 }
 
 func (t *TopicQueue) Bind(s *subscribe) {
@@ -92,7 +97,7 @@ func (t *TopicQueue) Push(m *msg.Message) {
 }
 
 func (t *TopicQueue) dispatch(msgs []*msg.Message) {
-	var send bool
+	//var send bool
 	for _, m := range msgs {
 		if m.GetPubType() == msg.PublishType_DirectType {
 			for e := t.subscribes.Front(); e != nil; e = e.Next() {
@@ -105,7 +110,7 @@ func (t *TopicQueue) dispatch(msgs []*msg.Message) {
 				t.subscribes.Remove(e)
 				t.subscribes.PushBack(sub)
 				t.subscribeMu.Unlock()
-				send = true
+				//send = true
 				break
 			}
 		} else {
@@ -115,14 +120,14 @@ func (t *TopicQueue) dispatch(msgs []*msg.Message) {
 					continue
 				}
 				sub.pushMsg(m)
-				send = true
+				//send = true
 			}
 		}
 	}
-	if !send {
-		// todo delete msg
-		Debug.Println("test point 1")
-	}
+	//if !send {
+	//	// todo delete msg
+	//	Debug.Println("test point 1")
+	//}
 }
 
 func (t *TopicQueue) Close() {
