@@ -90,7 +90,7 @@ func TestConnPool_Remove(t *testing.T) {
 }
 
 func TestConnPoolConcurrency(t *testing.T) {
-	addr := ":12347"
+	addr := ":12348"
 	var count int64
 	wait := make(chan struct{})
 	listener := testServer(addr, &count, 100, wait)
