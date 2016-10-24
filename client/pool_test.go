@@ -121,6 +121,5 @@ func TestConnPoolConcurrency(t *testing.T) {
 	if atomic.LoadInt64(&count) != 100 {
 		panic("unexpected conn number")
 	}
-	pool.Close()
 	listener.Close()
 }
