@@ -10,19 +10,17 @@ import (
 )
 
 type config struct {
-	HttpPort int
-	MsgPort  int
+	HttpPort  int
+	MsgPort   int
 
-	Auth     bool
-	UserName string
-	Token    string
-	//Cluster name identifies your cluster for auto-discovery. If you're running
-	//multiple clusters on the same network, make sure you're using unique names.
-	//
-	Retry    int
+	Auth      bool
+	UserName  string
+	Token     string
 
-	Aof      string
-	SyncType int
+	Retry     int
+
+	Aof       string
+	SyncType  int
 	Threshold int
 }
 
@@ -35,8 +33,8 @@ func LoadConfig() {
 	flag.IntVar(&Config.MsgPort, "port", 13001, "the msg port")
 	flag.IntVar(&Config.Retry, "r", 3, "the retry times")
 	flag.StringVar(&Config.Aof, "aof", "msgo.aof", "the aof file path")
-	flag.IntVar(&Config.SyncType,"sync", 0, "the default sync type of aof")
-	flag.IntVar(&Config.Threshold,"rewrite-threshold", 10000, "the default threshold of deleteOps that triggers rewrite operation")
+	flag.IntVar(&Config.SyncType, "sync", 0, "the default sync type of aof")
+	flag.IntVar(&Config.Threshold, "rewrite-threshold", 10000, "the default threshold of deleteOps that triggers rewrite operation")
 	flag.StringVar(&configFile, "c", "", "the config file path")
 	flag.Parse()
 	if configFile != "" {
