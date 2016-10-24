@@ -15,7 +15,7 @@ import (
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-	//ErrSubscribeTimeout
+	//ErrSubscribeTimeout error
 	ErrSubscribeTimeout = errors.New("subscribe topic time out")
 )
 
@@ -274,7 +274,7 @@ func (c *Consumer) UnSubscribe(topic string) error {
 	return c.unsubscribe(topic)
 }
 
-//Closethe consumer
+//Close the consumer
 func (c *Consumer) Close() {
 	c.Pool.Close()
 }

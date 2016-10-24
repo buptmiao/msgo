@@ -15,12 +15,17 @@ import (
 )
 
 const (
-	SAVE   = 1 //SAVE action
-	DELETE = 0 //DELETE action
+	//SAVE action
+	SAVE = 1
+	//DELETE action
+	DELETE = 0
 
-	NEVERSYNC   = 0 //NEVERSYNC strategy
-	EVERYSECOND = 1 //EVERYSECOND strategy
-	ALWAYSSYNC  = 2 //ALWAYSSYNC strategy
+	//NEVERSYNC strategy
+	NEVERSYNC = 0
+	//EVERYSECOND strategy
+	EVERYSECOND = 1
+	//ALWAYSSYNC strategy
+	ALWAYSSYNC = 2
 )
 
 var (

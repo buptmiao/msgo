@@ -8,9 +8,9 @@ import (
 )
 
 const (
-	//LEVELON
+	//LEVELON status
 	LEVELON = 0
-	//LEVELOFF
+	//LEVELOFF status
 	LEVELOFF = 1
 )
 
@@ -111,9 +111,12 @@ func (l *Logger) SetPrefix(prefix string) {
 }
 
 var (
-	Debug *Logger //Debug level
-	Log   *Logger //Log level
-	Error *Logger //Error level
+	//Debug level
+	Debug *Logger
+	//Log level
+	Log *Logger
+	//Error level
+	Error *Logger
 )
 
 func init() {

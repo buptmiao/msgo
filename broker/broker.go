@@ -25,19 +25,19 @@ type Broker struct {
 	topics  map[string]*TopicQueue
 }
 
-//Only one broker
+//OneBroker Only one broker
 var OneBroker sync.Once
 
 //DefaultBroker used by singleton
 var DefaultBroker *Broker
 
-//GetInstance, singleton interface
+//GetInstance is the singleton interface
 func GetInstance() *Broker {
 	OneBroker.Do(NewBroker)
 	return DefaultBroker
 }
 
-//NewBroker, invoked by singleton
+//NewBroker be invoked by singleton
 func NewBroker() {
 	broker := new(Broker)
 
@@ -98,14 +98,13 @@ func (b *Broker) Get(topic string) *TopicQueue {
 	if t, ok := b.topics[topic]; ok {
 		b.topicMu.RUnlock()
 		return t
-	} else {
-		b.topicMu.RUnlock()
-		t := NewTopicQueue(b, topic)
-		b.topicMu.Lock()
-		b.topics[topic] = t
-		b.topicMu.Unlock()
-		return t
 	}
+	b.topicMu.RUnlock()
+	t := NewTopicQueue(b, topic)
+	b.topicMu.Lock()
+	b.topics[topic] = t
+	b.topicMu.Unlock()
+	return t
 }
 
 //Delete topic
