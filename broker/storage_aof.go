@@ -24,9 +24,11 @@ const (
 )
 
 var (
+	// ErrEmptyMsgList occurs when the msgs on disk is scanned over.
 	ErrEmptyMsgList = errors.New("empty Msg list")
 )
 
+// StorageAOF
 type StorageAOF struct {
 	size        int64
 	filename    string
@@ -51,6 +53,7 @@ type StorageAOF struct {
 	rewriteBuffer []byte
 }
 
+// NewStorageAOF creates a AOF storage
 func NewStorageAOF(filename string, syncType int32, threshold int) *StorageAOF {
 	var err error
 	res := &StorageAOF{}
@@ -68,6 +71,7 @@ func NewStorageAOF(filename string, syncType int32, threshold int) *StorageAOF {
 	return res
 }
 
+// Save
 func (s *StorageAOF) Save(m ...*msg.Message) error {
 
 	bytes := s.toBinary(SAVE, m...)
@@ -91,6 +95,7 @@ func (s *StorageAOF) Save(m ...*msg.Message) error {
 	return nil
 }
 
+// Get
 func (s *StorageAOF) Get() (*msg.Message, error) {
 	if s.msgs.Len() == 0 {
 		// should be ignored by application
@@ -101,6 +106,7 @@ func (s *StorageAOF) Get() (*msg.Message, error) {
 	return res, nil
 }
 
+// Delete
 func (s *StorageAOF) Delete(m ...*msg.Message) error {
 	bytes := s.toBinary(DELETE, m...)
 	s.aofMu.Lock()
@@ -122,6 +128,7 @@ func (s *StorageAOF) Delete(m ...*msg.Message) error {
 	return nil
 }
 
+// Close
 func (s *StorageAOF) Close() error {
 	err := s.aof.Close()
 	s = nil
@@ -129,6 +136,7 @@ func (s *StorageAOF) Close() error {
 	return err
 }
 
+// Truncate
 func (s *StorageAOF) Truncate() {
 	os.Remove(s.filename)
 	s.Close()
@@ -167,7 +175,7 @@ func (s *StorageAOF) toBinary(cmd uint8, m ...*msg.Message) []byte {
 	return res
 }
 
-// With param  curMaxID, it won't rewrite messages that writen into aof
+// Rewrite with param curMaxID, it won't rewrite messages that written into aof
 // file after rewrite started. I achieve this by compare the MaxID, when
 // background rewrite is invoked, pass  s.MaxID as params curMaxID. when
 // discover a Message ID > curMaxID in the progress of reading old file,
@@ -304,10 +312,12 @@ func (s *StorageAOF) resetRewrite(deleteOps uint64) {
 	atomic.AddUint64(&s.deleteOps, -deleteOps)
 }
 
+// DeleteOps returns the deleteops of the AOF, to determine when to rewrite.
 func (s *StorageAOF) DeleteOps() uint64 {
 	return atomic.LoadUint64(&s.deleteOps)
 }
 
+// Stat returns the aof file's Stat
 func (s *StorageAOF) Stat() os.FileInfo {
 	inf, _ := s.aof.Stat()
 	return inf

@@ -5,6 +5,8 @@ import (
 )
 
 var (
+	// params invalid, please check
 	ErrParamsInvalid = errors.New("invalid params")
-	ErrMsgTypeError  = errors.New("message type error")
+	// msg type error
+	ErrMsgTypeError = errors.New("message type error")
 )

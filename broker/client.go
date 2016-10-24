@@ -8,6 +8,7 @@ import (
 	"sync"
 )
 
+// client that broker based on, to handle per request
 type Client struct {
 	status int
 	sync.Mutex
@@ -28,6 +29,7 @@ func newClient(broker *Broker, conn net.Conn) *Client {
 	return res
 }
 
+// Run loop of a client, until a error occur.
 func (c *Client) Run() {
 	//
 	c.status = RUNNING
@@ -82,6 +84,7 @@ func (c *Client) handle(m *msg.MessageList) error {
 	return err
 }
 
+// Ack send ack
 func (c *Client) Ack() error {
 	ack := msg.NewAckMsg()
 	return c.sendMsg(ack)
@@ -153,6 +156,7 @@ func (c *Client) sendMsg(m ...*msg.Message) error {
 	return err
 }
 
+// Close the client
 func (c *Client) Close() {
 	if c.status == STOP {
 		return

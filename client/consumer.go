@@ -15,7 +15,8 @@ import (
 /////////////////////////////////////////////////////////////////////////////////////////////
 
 var (
-	ErrSubcribeTimeout = errors.New("subscribe topic time out")
+	//ErrSubscribeTimeout
+	ErrSubscribeTimeout = errors.New("subscribe topic time out")
 )
 
 type subscribe struct {
@@ -128,6 +129,7 @@ func (s *subscribe) close() {
 	s.c.pool.Remove(s.c)
 }
 
+// Handler defines the functions that handle messages
 type Handler interface {
 	Before()
 	// when Handle return value is not nil, run loop will abort, then After() will be invoked.
@@ -135,34 +137,36 @@ type Handler interface {
 	After()
 }
 
-// the default handler, used by Subscribe method.
+// DefaultHandler is the default handler, used by Subscribe method.
 type DefaultHandler struct {
 	h func(...*msg.Message) error
 }
 
+// Before
 func (d *DefaultHandler) Before() {
 	return
 }
 
+// Handle
 func (d *DefaultHandler) Handle(msgs ...*msg.Message) error {
 	return d.h(msgs...)
 }
 
+// After
 func (d *DefaultHandler) After() {
 	return
 }
 
-/////////////////////////////////////////////////////////////////////////////////////////////
 // Consumer
 //
 //
-/////////////////////////////////////////////////////////////////////////////////////////////
 type Consumer struct {
 	Pool *ConnPool
 	// classify by topic
 	subscribes map[string]*subscribe
 }
 
+// NewConsumer
 func NewConsumer(addr string) *Consumer {
 	res := new(Consumer)
 	res.Pool = NewDefaultConnPool(addr)
@@ -183,8 +187,8 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 			return nil
 		}
 		s.filter = filter
+		s.remain = remain
 		s.h = h
-		s = s
 		s.sendSub(s.topic, s.filter, remain)
 		s.waitAck = true
 		select {
@@ -194,7 +198,7 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 		case <-time.After(time.Second * 5):
 			s.waitAck = false
 			s.updateAck = make(chan struct{}, 1)
-			return ErrSubcribeTimeout
+			return ErrSubscribeTimeout
 		}
 		// need update
 	} else {
@@ -212,7 +216,6 @@ func (c *Consumer) subscribe(topic string, filter string, remain int64, h Handle
 		}
 		//record it
 		c.subscribes[topic] = s
-		s = s
 		s.sendSub(s.topic, s.filter, remain)
 		m, err := msg.Unmarshal(s.c)
 		if m.Type == msg.MessageType_Ack {
@@ -240,6 +243,7 @@ func (c *Consumer) unsubscribe(topic string) error {
 	return err
 }
 
+// Subscribe
 func (c *Consumer) Subscribe(topic string, filter string, f func(...*msg.Message) error) error {
 	handler := &DefaultHandler{
 		h: f,
@@ -247,10 +251,12 @@ func (c *Consumer) Subscribe(topic string, filter string, f func(...*msg.Message
 	return c.subscribe(topic, filter, -1, handler)
 }
 
+// SubscribeWithHandler
 func (c *Consumer) SubscribeWithHandler(topic string, filter string, h Handler) error {
 	return c.subscribe(topic, filter, -1, h)
 }
 
+// SubscribeWithCount
 func (c *Consumer) SubscribeWithCount(topic string, filter string, count int64, f func(...*msg.Message) error) error {
 	handler := &DefaultHandler{
 		h: f,
@@ -258,14 +264,17 @@ func (c *Consumer) SubscribeWithCount(topic string, filter string, count int64, 
 	return c.subscribe(topic, filter, count, handler)
 }
 
+// SubscribeWithCountAndHandler
 func (c *Consumer) SubscribeWithCountAndHandler(topic string, filter string, count int64, h Handler) error {
 	return c.subscribe(topic, filter, count, h)
 }
 
+// UnSubscribe
 func (c *Consumer) UnSubscribe(topic string) error {
 	return c.unsubscribe(topic)
 }
 
+// Close
 func (c *Consumer) Close() {
 	c.Pool.Close()
 }

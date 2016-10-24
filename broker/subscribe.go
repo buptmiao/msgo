@@ -8,10 +8,12 @@ import (
 //
 type msgChan chan []*msg.Message
 
+// NewMsgChan creates a new msgChan
 func NewMsgChan() msgChan {
 	return make(chan []*msg.Message, 1)
 }
 
+// PushBack
 func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
@@ -24,6 +26,7 @@ func (pc msgChan) PushBack(cmd ...*msg.Message) {
 	}
 }
 
+// PushFront
 func (pc msgChan) PushFront(cmd ...*msg.Message) {
 	toStack := cmd
 	for {
@@ -67,6 +70,7 @@ func newsubscribe(topic *TopicQueue, client *Client, filter string, cnt int64, a
 	return res
 }
 
+// Run loop
 func (s *subscribe) Run() {
 	for {
 		select {

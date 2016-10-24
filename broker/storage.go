@@ -11,20 +11,28 @@ import (
 	"sync/atomic"
 )
 
+// Storage
 type Storage interface {
+	// Save store the msg into disk
 	Save(m ...*msg.Message) error
+	// Get read the msg from disk
 	Get() (*msg.Message, error)
+	// Delete remove the msg from disk
 	Delete(m ...*msg.Message) error
+	// Close shutdown the storage
 	Close() error
+	// Truncate will remove the db file, that is only used in dev.
 	Truncate()
 }
 
+// StableStorage
 type StableStorage struct {
 	db      *bolt.DB
 	lastkey []byte
 	size    int64
 }
 
+// NewStable
 func NewStable() *StableStorage {
 	res := new(StableStorage)
 	var err error
@@ -45,6 +53,7 @@ func NewStable() *StableStorage {
 	return res
 }
 
+// Save
 func (s *StableStorage) Save(m ...*msg.Message) error {
 	atomic.AddInt64(&s.size, 1)
 
@@ -64,6 +73,7 @@ func (s *StableStorage) Save(m ...*msg.Message) error {
 	})
 }
 
+// Get
 func (s *StableStorage) Get() (*msg.Message, error) {
 	var res []byte
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -96,6 +106,7 @@ func (s *StableStorage) Get() (*msg.Message, error) {
 	return m, nil
 }
 
+// Delete
 func (s *StableStorage) Delete(msgs ...*msg.Message) error {
 	var keys [][]byte
 	for _, m := range msgs {
@@ -117,13 +128,14 @@ func (s *StableStorage) Delete(msgs ...*msg.Message) error {
 	})
 }
 
+// Close
 func (s *StableStorage) Close() error {
 	err := s.db.Close()
 	PanicIfErr(err)
 	return err
 }
 
-// just for test
+// Truncate just for test
 func (s *StableStorage) Truncate() {
 	filename := s.db.Path()
 	s.Close()

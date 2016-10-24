@@ -28,9 +28,11 @@ var timers = sync.Pool{
 }
 
 var (
+	//ErrTimeout
 	ErrTimeout = errors.New("get conn time out")
 )
 
+//Conn
 type Conn struct {
 	C          net.Conn
 	createTime time.Time
@@ -53,18 +55,22 @@ func newConn(c *ConnPool) (*Conn, error) {
 	return res, nil
 }
 
+// Read
 func (c *Conn) Read(b []byte) (n int, err error) {
 	return c.C.Read(b)
 }
 
+// Write
 func (c *Conn) Write(b []byte) (n int, err error) {
 	return c.C.Write(b)
 }
 
+// Close
 func (c *Conn) Close() error {
 	return c.C.Close()
 }
 
+// ConnPool
 // the definition of Connect pool
 //
 //
@@ -83,6 +89,7 @@ type ConnPool struct {
 	idleConn    *list.List
 }
 
+//NewConnPool
 func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr string, rate int64) *ConnPool {
 	p := &ConnPool{
 		size:        poolSize,
@@ -102,14 +109,17 @@ func NewConnPool(poolSize int, dialTimeout, poolTimeout time.Duration, addr stri
 	return p
 }
 
+// NewDefaultConnPool
 func NewDefaultConnPool(addr string) *ConnPool {
 	return NewConnPool(DefaultPoolSize, DefaultDialTimeout, DefaultPoolTimeout, addr, DefaultConnPerSecond)
 }
 
+// Size
 func (p *ConnPool) Size() int {
 	return p.size
 }
 
+// Get
 func (p *ConnPool) Get() (*Conn, error) {
 	timer := timers.Get().(*time.Timer)
 	if !timer.Reset(p.poolTimeout) {
@@ -157,11 +167,13 @@ func (p *ConnPool) push(c *Conn) {
 	p.allConn.PushBack(c)
 }
 
+// Put
 func (p *ConnPool) Put(c *Conn) {
 	p.pushIdle(c)
 	p.tickets <- struct{}{}
 }
 
+// Remove
 func (p *ConnPool) Remove(c *Conn) {
 	_ = c.Close()
 	p.Mu.Lock()
@@ -175,7 +187,8 @@ func (p *ConnPool) Remove(c *Conn) {
 	p.tickets <- struct{}{}
 }
 
-func (p ConnPool) Close() {
+// Close
+func (p *ConnPool) Close() {
 	p.status = CLOSED
 	p.Mu.Lock()
 	for e := p.allConn.Front(); e != nil; e = e.Next() {

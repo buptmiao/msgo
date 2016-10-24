@@ -6,6 +6,7 @@ import (
 	"time"
 )
 
+// ServeHTTP serves the rest requests
 func ServeHTTP(l net.Listener) {
 
 	mux := http.NewServeMux()
@@ -25,10 +26,12 @@ func ServeHTTP(l net.Listener) {
 	}()
 }
 
+// ServeMetrics will export metrics, which maybe used by prometheus etc.
 func ServeMetrics(w http.ResponseWriter, r *http.Request) {
 
 }
 
+// ServeAPI handle the message service by rest api.
 func ServeAPI(w http.ResponseWriter, r *http.Request) {
 
 }

@@ -16,7 +16,7 @@ type RateLimiter struct {
 	lasttime int64
 }
 
-// create a new rate limiter
+// NewRateLimiter create a new rate limiter
 func NewRateLimiter(rate int64, unit time.Duration) *RateLimiter {
 	res := &RateLimiter{
 		rate:     rate,
@@ -28,16 +28,17 @@ func NewRateLimiter(rate int64, unit time.Duration) *RateLimiter {
 	return res
 }
 
-// Blocking when the limiter is available
+// Acquire Blocking when the limiter is available
 func (r *RateLimiter) Acquire() {
 	r.acquire(1, true)
 }
 
-// Non-blocking, when acquire failed, it returns false.
+// TryAcquire is Non-blocking, when acquire failed, it returns false.
 func (r *RateLimiter) TryAcquire() bool {
 	return r.acquire(1, false)
 }
 
+// AcquireCount
 func (r *RateLimiter) AcquireCount(count int64) {
 	if count > r.rate {
 		count = r.rate

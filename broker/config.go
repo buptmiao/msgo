@@ -9,6 +9,7 @@ import (
 	"math"
 )
 
+// Configure
 type Configure struct {
 	HttpPort int
 	MsgPort  int
@@ -24,8 +25,10 @@ type Configure struct {
 	Threshold int
 }
 
+// Config is the default config file
 var Config *Configure = new(Configure)
 
+// LoadConfig
 func LoadConfig() {
 	var configFile string
 	// todo the default config Path
@@ -49,17 +52,18 @@ func LoadConfig() {
 	ArbitrateConfigs(Config)
 }
 
+// ArbitrateConfigs will check the config file
 func ArbitrateConfigs(c *Configure) {
 	// check the ClusterName, ClusterName is used to Identify the clusters in the Local NetWork
 	if c.HttpPort == c.MsgPort {
 		panic("port conflict")
 	}
 	if c.HttpPort > math.MaxInt16 || c.HttpPort < 1024 {
-		panic(fmt.Errorf("illegal http port %s", c.HttpPort))
+		panic(fmt.Errorf("illegal http port %d", c.HttpPort))
 	}
 
 	if c.MsgPort > math.MaxInt16 || c.MsgPort < 1024 {
-		panic(fmt.Errorf("illegal msg port %s", c.MsgPort))
+		panic(fmt.Errorf("illegal msg port %d", c.MsgPort))
 	}
 
 	if c.Retry > 10 {

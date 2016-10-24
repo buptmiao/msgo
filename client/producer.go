@@ -6,10 +6,12 @@ import (
 	"time"
 )
 
+// Producer
 type Producer struct {
 	Pool *ConnPool
 }
 
+// NewProducer
 func NewProducer(addr string) *Producer {
 	res := new(Producer)
 	res.Pool = NewDefaultConnPool(addr)
@@ -48,6 +50,7 @@ func (p *Producer) publish(topic string, filter string, typ int32, body []byte, 
 	return p.WaitAck(c)
 }
 
+// WaitAck
 func (p *Producer) WaitAck(c *Conn) error {
 	m, err := msg.Unmarshal(c)
 	if err != nil {
@@ -61,40 +64,47 @@ func (p *Producer) WaitAck(c *Conn) error {
 	return nil
 }
 
+// PublishDirectPersist
 func (p *Producer) PublishDirectPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, true, true)
 }
 
+// PublishDirect
 func (p *Producer) PublishDirect(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, false, true)
 }
 
+// PublishFanoutPersist
 func (p *Producer) PublishFanoutPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, true, true)
 }
 
+// PublishFanout
 func (p *Producer) PublishFanout(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, false, true)
 }
 
-// The push methods need no ack
+// PushDirectPersist The push methods need no ack
 func (p *Producer) PushDirectPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, true, false)
 }
 
+// PushDirect
 func (p *Producer) PushDirect(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 0, body, false, false)
 }
 
+// PushFanoutPersist
 func (p *Producer) PushFanoutPersist(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, true, false)
 }
 
+// PushFanout
 func (p *Producer) PushFanout(topic string, filter string, body []byte) error {
 	return p.publish(topic, filter, 1, body, false, false)
 }
 
-// batch publish msgs
+// BatchPublish batch publish msgs
 // all the messages must have MessageType_Publish.
 func (p *Producer) BatchPublish(m ...*msg.Message) error {
 	for _, v := range m {
@@ -110,6 +120,7 @@ func (p *Producer) BatchPublish(m ...*msg.Message) error {
 	return msg.BatchMarshal(msg.PackageMsgs(m...), c)
 }
 
+// Close
 func (p *Producer) Close() {
 	p.Pool.Close()
 }

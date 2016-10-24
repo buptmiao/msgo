@@ -10,6 +10,7 @@ const (
 	STOP
 )
 
+// Broker instance
 type Broker struct {
 	msg  net.Listener
 	http net.Listener
@@ -24,13 +25,17 @@ type Broker struct {
 
 // Only one broker
 var OneBroker sync.Once
+
+// DefaultBroker used by singleton
 var DefaultBroker *Broker
 
+// GetInstance, singleton interface
 func GetInstance() *Broker {
 	OneBroker.Do(NewBroker)
 	return DefaultBroker
 }
 
+// NewBroker, invoked by singleton
 func NewBroker() {
 	broker := new(Broker)
 
@@ -53,6 +58,7 @@ func NewBroker() {
 	DefaultBroker = broker
 }
 
+// Start
 func (b *Broker) Start() {
 	b.status = RUNNING
 	ServeHTTP(b.http)
@@ -69,6 +75,7 @@ func (b *Broker) Start() {
 	}
 }
 
+// Stop
 func (b *Broker) Stop() {
 	b.status = STOP
 	if b.stable != nil {
@@ -82,6 +89,7 @@ func (b *Broker) Stop() {
 	}
 }
 
+// Get
 func (b *Broker) Get(topic string) *TopicQueue {
 	b.topicMu.RLock()
 
@@ -98,6 +106,7 @@ func (b *Broker) Get(topic string) *TopicQueue {
 	}
 }
 
+// Delete
 func (b *Broker) Delete(topic string) {
 	b.topicMu.Lock()
 	tq, ok := b.topics[topic]
@@ -108,15 +117,17 @@ func (b *Broker) Delete(topic string) {
 	b.topicMu.Unlock()
 }
 
+// TotalTopic returns the number of topics currently.
 func (b *Broker) TotalTopic() int {
 	return len(b.topics)
 }
 
+// Storage return the Storage
 func (b *Broker) Storage() Storage {
 	return b.stable
 }
 
-// handle stable msgs
+// Replay will recover the msgs in db when the broker startup
 func (b *Broker) Replay() {
 	for {
 		// it may block here
