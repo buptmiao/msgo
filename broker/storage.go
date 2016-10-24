@@ -29,9 +29,7 @@ func NewStable() *StableStorage {
 	res := new(StableStorage)
 	var err error
 	res.db, err = bolt.Open("msgo.db", 0666, &bolt.Options{Timeout: 1 * time.Second})
-	if err != nil {
-		panic(err)
-	}
+	PanicIfErr(err)
 	//must initiate bucket msgo
 	res.db.Update(func(tx *bolt.Tx) error {
 		b, err := tx.CreateBucketIfNotExists([]byte("msgo"))
@@ -121,9 +119,7 @@ func (s *StableStorage) Delete(msgs ...*msg.Message) error {
 
 func (s *StableStorage) Close() error {
 	err := s.db.Close()
-	if err != nil {
-		Error.Println(err)
-	}
+	PanicIfErr(err)
 	return err
 }
 
@@ -132,7 +128,5 @@ func (s *StableStorage) Truncate() {
 	filename := s.db.Path()
 	s.Close()
 	err := os.Remove(filename)
-	if err != nil {
-		panic(err)
-	}
+	PanicIfErr(err)
 }

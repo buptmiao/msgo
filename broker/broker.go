@@ -36,14 +36,10 @@ func NewBroker() {
 
 	var err error
 	broker.msg, err = net.Listen("tcp", PortToLocalAddr(Config.MsgPort))
-	if err != nil {
-		panic(err.Error())
-	}
+	PanicIfErr(err)
 
 	broker.http, err = net.Listen("tcp", PortToLocalAddr(Config.HttpPort))
-	if err != nil {
-		panic(err.Error())
-	}
+	PanicIfErr(err)
 
 	broker.status = STOP
 	broker.topics = make(map[string]*TopicQueue)
@@ -62,11 +58,12 @@ func (b *Broker) Start() {
 	b.status = RUNNING
 	ServeHTTP(b.http)
 	b.Replay()
+	Log.Printf("Message service listening on port :%d\n", Config.MsgPort)
 	for {
 		conn, err := b.msg.Accept()
 		if err != nil {
-			Error.Println(err)
-			continue
+			Debug.Println(err)
+			break
 		}
 		c := newClient(b, conn)
 		go c.Run()
@@ -110,6 +107,10 @@ func (b *Broker) Delete(topic string) {
 		delete(b.topics, topic)
 	}
 	b.topicMu.Unlock()
+}
+
+func (b *Broker) Storage() Storage {
+	return b.stable
 }
 
 // handle stable msgs

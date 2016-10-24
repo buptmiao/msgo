@@ -52,6 +52,7 @@ func (t *TopicQueue) Run() {
 		}
 		select {
 		case msgs := <- t.buf:
+			Debug.Println("topic msgs", len(msgs))
 			t.dispatch(msgs)
 		case <-t.stop:
 			Log.Println("topic %s closed", t.topic)

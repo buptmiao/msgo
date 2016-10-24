@@ -4,6 +4,7 @@ import (
 	"github.com/buptmiao/msgo/msg"
 	"log"
 	"time"
+	"io"
 )
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -32,7 +33,9 @@ func (s *subscribe) run() {
 		}
 		m, err := msg.BatchUnmarshal(s.c)
 		if err != nil {
-			log.Fatalln("batch unmarshal failed", err)
+			if err != io.EOF {
+				log.Println("batch unmarshal failed", err)
+			}
 			break
 		}
 
@@ -230,8 +233,8 @@ func (c *Consumer) SubscribeWithCountAndHandler(topic string, filter string, cou
 	return c.subscribe(topic, filter, count, h)
 }
 
-func (c *Consumer) UnSubscribe(topic string) {
-	c.unsubscribe(topic)
+func (c *Consumer) UnSubscribe(topic string) error {
+	return c.unsubscribe(topic)
 }
 
 func (c *Consumer) Close() {

@@ -9,7 +9,7 @@ import (
 	"math"
 )
 
-type config struct {
+type Configure struct {
 	HttpPort  int
 	MsgPort   int
 
@@ -24,7 +24,7 @@ type config struct {
 	Threshold int
 }
 
-var Config *config = new(config)
+var Config *Configure = new(Configure)
 
 func LoadConfig() {
 	var configFile string
@@ -49,34 +49,32 @@ func LoadConfig() {
 	ArbitrateConfigs(Config)
 }
 
-func ArbitrateConfigs(c *config) {
+func ArbitrateConfigs(c *Configure) {
 	// check the ClusterName, ClusterName is used to Identify the clusters in the Local NetWork
-	if Config.HttpPort == Config.MsgPort {
+	if c.HttpPort == c.MsgPort {
 		panic("port conflict")
 	}
-	if Config.HttpPort > math.MaxInt16 || Config.HttpPort < 1024 {
-		panic(fmt.Errorf("illegal http port %s", Config.HttpPort))
+	if c.HttpPort > math.MaxInt16 || c.HttpPort < 1024 {
+		panic(fmt.Errorf("illegal http port %s", c.HttpPort))
 	}
 
-	if Config.MsgPort > math.MaxInt16 || Config.MsgPort < 1024 {
-		panic(fmt.Errorf("illegal msg port %s", Config.MsgPort))
+	if c.MsgPort > math.MaxInt16 || c.MsgPort < 1024 {
+		panic(fmt.Errorf("illegal msg port %s", c.MsgPort))
 	}
 
-	if Config.Retry > 10 {
-		Config.Retry = 10
+	if c.Retry > 10 {
+		c.Retry = 10
 	}
-	if Config.Retry < 1 {
-		Config.Retry = 1
+	if c.Retry < 1 {
+		c.Retry = 1
 	}
-	if Config.SyncType < 0 || Config.SyncType > 2 {
-		Config.SyncType = 0
+	if c.SyncType < 0 || c.SyncType > 2 {
+		c.SyncType = 0
 	}
-	if Config.Threshold < 1000 {
-		Config.Threshold = 1000
+	if c.Threshold < 1000 {
+		c.Threshold = 1000
 	}
-	if Config.Threshold > 1000000 {
-		Config.Threshold = 1000000
+	if c.Threshold > 1000000 {
+		c.Threshold = 1000000
 	}
-
-	Log.Printf("Message service listening on port :%d\n", Config.MsgPort)
 }

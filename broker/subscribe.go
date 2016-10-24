@@ -104,6 +104,8 @@ func (s *subscribe) sendMsg(msgs []*msg.Message) {
 			case <-time.After(time.Second * 5):
 				Error.Printf("time out! client:%v no ack to %s, time %d \n", s.client.conn.RemoteAddr(), s.topic.topic, i + 1)
 			}
+		} else {
+			return
 		}
 	}
 }

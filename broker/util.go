@@ -14,3 +14,9 @@ func itob(id uint64) []byte {
 func PortToLocalAddr(port int) string {
 	return fmt.Sprintf(":%d", port)
 }
+
+func PanicIfErr(err error) {
+	if err != nil {
+		panic(err)
+	}
+}

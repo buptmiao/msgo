@@ -63,9 +63,7 @@ func NewStorageAOF(filename string, syncType int32, threshold int) *StorageAOF {
 	res.deleteSet = make(map[uint64]struct{})
 	res.msgs = list.New()
 	res.aof, err = os.OpenFile(res.filename, os.O_WRONLY | os.O_APPEND | os.O_CREATE, 0666)
-	if err != nil {
-		panic(err)
-	}
+	PanicIfErr(err)
 	res.Rewrite(math.MaxUint64, true)
 	return res
 }
@@ -184,15 +182,11 @@ func (s *StorageAOF) Rewrite(curMaxID uint64, startup bool) bool {
 		Log.Println("aof rewrite started...")
 	}
 	oldfile, err := os.Open(s.filename)
-	if err != nil {
-		panic(err)
-	}
+	PanicIfErr(err)
 	tmpfilename := fmt.Sprintf("tmp_%s", s.filename)
 	os.Remove(tmpfilename)
 	newfile, err := os.OpenFile(tmpfilename, os.O_WRONLY | os.O_APPEND | os.O_CREATE, 0666)
-	if err != nil {
-		panic(err)
-	}
+	PanicIfErr(err)
 	s.load(oldfile)
 	deleteOps := s.store(curMaxID, newfile, startup)
 	s.aofMu.Lock()
@@ -204,9 +198,7 @@ func (s *StorageAOF) Rewrite(curMaxID uint64, startup bool) bool {
 	//old
 	s.aof = newfile
 	err = os.Rename(tmpfilename, s.filename)
-	if err != nil {
-		panic(err)
-	}
+	PanicIfErr(err)
 	s.aofMu.Unlock()
 	oldfile.Close()
 	// set rewrite flag to zero
@@ -229,17 +221,14 @@ func (s *StorageAOF) load(old *os.File) {
 			size := binary.BigEndian.Uint32(bytes[1:])
 			msg := make([]byte, size)
 			copy(msg, bytes[5:])
-			n, err := old.Read(msg[4:])
+			_, err := old.Read(msg[4:])
 			// impossible unless file is broken
-			if err != nil || n != int(size - 4) {
-				panic(err)
-			}
+			PanicIfErr(err)
 			s.saveBuffer = append(s.saveBuffer, msg)
 		} else if bytes[0] == DELETE {
 			msgID := binary.BigEndian.Uint64(bytes[1:])
 			s.deleteSet[msgID] = struct{}{}
 		} else {
-			fmt.Println(bytes)
 			panic("file format error")
 		}
 	}
@@ -253,9 +242,7 @@ func (s *StorageAOF) store(curMaxID uint64, newfile *os.File, startup bool) uint
 	for _, v := range s.saveBuffer {
 		msg := &msg.Message{}
 		err := msg.Unmarshal(v)
-		if err != nil {
-			panic(err)
-		}
+		PanicIfErr(err)
 
 		// to avoid duplicate messages with rewriteBuffer.
 		if msg.GetMsgId() > curMaxID {

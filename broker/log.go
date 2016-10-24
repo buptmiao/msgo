@@ -45,21 +45,20 @@ func (l *Logger) Println(v ...interface{}) {
 	}
 	l.l.Output(2, fmt.Sprintln(v...))
 }
-
-func (l *Logger) Fatal(v ...interface{}) {
-	l.l.Output(2, fmt.Sprint(v...))
-	os.Exit(1)
-}
-
-func (l *Logger) Fatalf(format string, v ...interface{}) {
-	l.l.Output(2, fmt.Sprintf(format, v...))
-	os.Exit(1)
-}
-
-func (l *Logger) Fatalln(v ...interface{}) {
-	l.l.Output(2, fmt.Sprintln(v...))
-	os.Exit(1)
-}
+//func (l *Logger) Fatal(v ...interface{}) {
+//	l.l.Output(2, fmt.Sprint(v...))
+//	os.Exit(1)
+//}
+//
+//func (l *Logger) Fatalf(format string, v ...interface{}) {
+//	l.l.Output(2, fmt.Sprintf(format, v...))
+//	os.Exit(1)
+//}
+//
+//func (l *Logger) Fatalln(v ...interface{}) {
+//	l.l.Output(2, fmt.Sprintln(v...))
+//	os.Exit(1)
+//}
 
 func (l *Logger) Panic(v ...interface{}) {
 	s := fmt.Sprint(v...)

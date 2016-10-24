@@ -9,6 +9,7 @@ import (
 )
 
 type Client struct {
+	status int
 	sync.Mutex
 	broker *Broker
 	conn net.Conn
@@ -29,6 +30,7 @@ func newClient(broker *Broker, conn net.Conn) *Client {
 
 func (c *Client) Run() {
 	//
+	c.status = RUNNING
 	count := 0
 	for {
 		// block here
@@ -42,7 +44,7 @@ func (c *Client) Run() {
 		count++
 		err = c.handle(msgs)
 		if err != nil {
-			Error.Println(err)
+			Debug.Println(err)
 			c.Close()
 			return
 		}
@@ -60,7 +62,7 @@ func (c *Client) handle(m *msg.MessageList) error {
 			c.handleSubscribe(v)
 			needAck = true
 		case msg.MessageType_Publish:
-			c.handlePublish(v)
+			err = c.handlePublish(v)
 			needAck = true
 		case msg.MessageType_UnSubscribe:
 			c.handleUnSubscribe(v)
@@ -72,6 +74,7 @@ func (c *Client) handle(m *msg.MessageList) error {
 			panic(fmt.Errorf("unsupported msg type %v", v.GetType()))
 		}
 	}
+
 	if needAck {
 		err = c.Ack()
 	}
@@ -96,17 +99,17 @@ func (c *Client) handleSubscribe(m *msg.Message) {
 	}
 }
 
-func (c *Client) handlePublish(m *msg.Message) {
+func (c *Client) handlePublish(m *msg.Message) error {
 	if m.GetPersist() {
 		err := c.broker.stable.Save(m)
 		if err != nil {
 			Error.Println(err)
-			return
+			return err
 		}
-	} else {
-		topic := c.broker.Get(m.GetTopic())
-		topic.Push(m)
 	}
+	topic := c.broker.Get(m.GetTopic())
+	topic.Push(m)
+	return nil
 }
 
 func (c *Client) handleUnSubscribe(m *msg.Message) {
@@ -140,6 +143,7 @@ func (c *Client) recvMsg() (*msg.MessageList, error) {
 }
 
 func (c *Client) sendMsg(m ...*msg.Message) error {
+	Debug.Println("send msgs ", len(m))
 	err := msg.BatchMarshal(&msg.MessageList{m}, c.conn)
 	if err != nil {
 		Error.Println(err)
@@ -148,6 +152,10 @@ func (c *Client) sendMsg(m ...*msg.Message) error {
 }
 
 func (c *Client) Close() {
+	if c.status == STOP {
+		return
+	}
+	c.status = STOP
 	close(c.stop)
 	for _, s := range c.subscribes {
 		s.close()
