@@ -109,6 +109,10 @@ func (b *Broker) Delete(topic string) {
 	b.topicMu.Unlock()
 }
 
+func (b *Broker) TotalTopic() int {
+	return len(b.topics)
+}
+
 func (b *Broker) Storage() Storage {
 	return b.stable
 }
@@ -116,9 +120,6 @@ func (b *Broker) Storage() Storage {
 // handle stable msgs
 func (b *Broker) Replay() {
 	for {
-		if b.status == STOP {
-			return
-		}
 		// it may block here
 		m, err := b.stable.Get()
 		if err != nil {

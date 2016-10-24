@@ -66,7 +66,7 @@ func (s *StableStorage) Save(m ...*msg.Message) error {
 
 func (s *StableStorage) Get() (*msg.Message, error) {
 	var res []byte
-	s.db.View(func(tx *bolt.Tx) error {
+	err := s.db.View(func(tx *bolt.Tx) error {
 		// Assume bucket exists and has keys
 		b := tx.Bucket([]byte("msgo"))
 
@@ -76,16 +76,19 @@ func (s *StableStorage) Get() (*msg.Message, error) {
 			k, v = c.Next()
 		}
 		if k == nil {
-			k, v = c.First()
+			return ErrEmptyMsgList
 		}
 
 		res = v
 		s.lastkey = k
 		return nil
 	})
+	if err != nil {
+		return nil, err
+	}
 	m := &msg.Message{}
 
-	err := m.Unmarshal(res)
+	err = m.Unmarshal(res)
 	if err != nil {
 		return nil, err
 	}

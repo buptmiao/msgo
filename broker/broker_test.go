@@ -55,15 +55,26 @@ func TestSubscribeAndPublish(t *testing.T) {
 	b.Storage().Truncate()
 }
 
-func TestBroker_Delete(t *testing.T) {
-	//create some date
-	aof := broker.NewStorageAOF("msgo.aof", 2, 10000)
-	aof.Save(newMessage())
-	aof.Close()
+func TestBroker_GetAndDelete(t *testing.T) {
+	//use stable
+	db := broker.NewStable()
+	db.Save(newMessage())
+	db.Close()
+	tmp := broker.Config.Aof
+	broker.Config.Aof = ""
+
+	broker.OneBroker = sync.Once{}
 	b := broker.GetInstance()
 	b.Replay()
-	b.Get("test")
+	tq := b.Get("test")
+	if tq == nil {
+		panic("")
+	}
 	b.Delete("test")
 
+	if b.TotalTopic() != 1 {
+		panic("expected 1")
+	}
 	b.Storage().Truncate()
+	broker.Config.Aof = tmp
 }
