@@ -1,4 +1,4 @@
-## demo
+## Demo
 
 This is a demo usage of msgo
 
