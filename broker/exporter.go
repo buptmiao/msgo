@@ -77,7 +77,8 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.Lock()
 	defer e.Unlock()
 
-	e.scrape()
+	stat := GetInstance().Stat()
+	e.Scrape(stat)
 	e.uptime.Collect(ch)
 	e.totalMsgs.Collect(ch)
 	e.successMsgs.Collect(ch)
@@ -86,8 +87,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.topicSubscribers.Collect(ch)
 }
 
-func (e *Exporter) scrape() {
-	stat := GetInstance().Stat()
+func (e *Exporter) Scrape(stat *Stat) {
 	now := time.Now().UnixNano()
 	elapsed := float64(now-stat.startTime) / float64(time.Second)
 	e.uptime.WithLabelValues(e.addr).Set(elapsed)
