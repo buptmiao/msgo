@@ -8,12 +8,12 @@ import (
 
 // Exporter instance
 type Exporter struct {
-	namespace        string
-	addr             string
+	namespace string
+	addr      string
 	sync.RWMutex
-	uptime           *prometheus.GaugeVec
-	totalMsgs        *prometheus.GaugeVec
-	successMsgs      *prometheus.GaugeVec
+	uptime      *prometheus.GaugeVec
+	totalMsgs   *prometheus.GaugeVec
+	successMsgs *prometheus.GaugeVec
 
 	topicMsgs        *prometheus.GaugeVec
 	successTopicMsgs *prometheus.GaugeVec
@@ -34,36 +34,36 @@ func (e *Exporter) initGauges() {
 		Namespace: e.namespace,
 		Name:      "up_time",
 		Help:      "The uptime till now, unit seconds",
-	},[]string{"addr"})
+	}, []string{"addr"})
 	e.totalMsgs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: e.namespace,
 		Name:      "total_published_messages",
 		Help:      "The total published messages till now",
-	},[]string{"addr"})
+	}, []string{"addr"})
 	e.successMsgs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: e.namespace,
 		Name:      "total_consumed_messages",
 		Help:      "The total consumed messages till now",
-	},[]string{"addr"})
+	}, []string{"addr"})
 	e.topicMsgs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: e.namespace,
 		Name:      "total_published_messages_per_topic",
 		Help:      "The total published messages per topic till now",
-	},[]string{"addr", "topic"})
+	}, []string{"addr", "topic"})
 	e.successTopicMsgs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: e.namespace,
 		Name:      "total_consumed_messages_per_topic",
 		Help:      "The total consumed messages per topic till now",
-	},[]string{"addr", "topic"})
+	}, []string{"addr", "topic"})
 	e.topicSubscribers = prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: e.namespace,
 		Name:      "subscribers_number_per_topic",
 		Help:      "The number of subscribers of per topic",
-	},[]string{"addr", "topic"})
+	}, []string{"addr", "topic"})
 }
 
 // Describe outputs the metric descriptions.
-func (e *Exporter) Describe(ch chan <- *prometheus.Desc) {
+func (e *Exporter) Describe(ch chan<- *prometheus.Desc) {
 	e.uptime.Describe(ch)
 	e.totalMsgs.Describe(ch)
 	e.successMsgs.Describe(ch)
@@ -73,7 +73,7 @@ func (e *Exporter) Describe(ch chan <- *prometheus.Desc) {
 }
 
 // Collect fetches and updates the appropriate metrics.
-func (e *Exporter) Collect(ch chan <- prometheus.Metric) {
+func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.Lock()
 	defer e.Unlock()
 
@@ -89,7 +89,7 @@ func (e *Exporter) Collect(ch chan <- prometheus.Metric) {
 func (e *Exporter) scrape() {
 	stat := GetInstance().Stat()
 	now := time.Now().UnixNano()
-	elapsed := float64(now - stat.startTime) / float64(time.Second)
+	elapsed := float64(now-stat.startTime) / float64(time.Second)
 	e.uptime.WithLabelValues(e.addr).Set(elapsed)
 	e.totalMsgs.WithLabelValues(e.addr).Set(float64(stat.totalMsg))
 	e.successMsgs.WithLabelValues(e.addr).Set(float64(stat.successMsgs))

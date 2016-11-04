@@ -1,10 +1,10 @@
 package broker
 
 import (
+	"github.com/prometheus/client_golang/prometheus"
 	"net"
 	"net/http"
 	"time"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 //ServeHTTP serves the rest requests
@@ -12,6 +12,7 @@ func ServeHTTP(l net.Listener) {
 
 	mux := http.NewServeMux()
 	exporter := NewExporter("msgo", GetLocalIP())
+	prometheus.Unregister(exporter)
 	prometheus.MustRegister(exporter)
 	mux.Handle("/metrics", prometheus.Handler())
 	mux.HandleFunc("/api", ServeAPI)
@@ -29,7 +30,7 @@ func ServeHTTP(l net.Listener) {
 	}()
 }
 
-//ServeMetrics will export metrics, which maybe used by prometheus etc.
+//ServeHome will export metrics, which maybe used by prometheus etc.
 func ServeHome(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(`<html>
 <head><title>Welcome to Msgo!</title></head>
@@ -43,5 +44,5 @@ func ServeHome(w http.ResponseWriter, r *http.Request) {
 
 //ServeAPI handle the message service by rest api.
 func ServeAPI(w http.ResponseWriter, r *http.Request) {
-
+	w.Write([]byte("hello world"))
 }

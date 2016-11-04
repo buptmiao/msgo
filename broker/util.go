@@ -27,16 +27,14 @@ func PanicIfErr(err error) {
 //GetLocalIP will return local IP address
 func GetLocalIP() string {
 	addrs, err := net.InterfaceAddrs()
-	if err != nil {
-		fmt.Println(err)
-	}
-	var ip string = "localhost"
+	PanicIfErr(err)
+	var res string = "localhost"
 	for _, address := range addrs {
-		if ipnet, ok := address.(*net.IPNet); ok && !ipnet.IP.IsLoopback() {
-			if ipnet.IP.To4() != nil {
-				ip = ipnet.IP.String()
+		if inet, ok := address.(*net.IPNet); ok && !inet.IP.IsLoopback() {
+			if inet.IP.To4() != nil {
+				res = inet.IP.String()
 			}
 		}
 	}
-	return ip
+	return res
 }

@@ -1,8 +1,8 @@
 package broker
 
 import (
-	"time"
 	"sync"
+	"time"
 )
 
 //Stat instance
@@ -14,7 +14,7 @@ type Stat struct {
 	// the msgs of per topic
 	topicMsgs map[string]int64
 
-	successMsgs int64
+	successMsgs      int64
 	successTopicMsgs map[string]int64
 
 	// the number of subscribers of per topic
@@ -22,7 +22,7 @@ type Stat struct {
 }
 
 //NewStat creates a stat object
-func NewStat() *Stat{
+func NewStat() *Stat {
 	res := new(Stat)
 	res.startTime = time.Now().UnixNano()
 	res.totalMsg = 0
@@ -49,14 +49,15 @@ func (s *Stat) Success(topic string, num int64) {
 	s.successTopicMsgs[topic] += num
 }
 
+// Subscribe increase the subscribers number of per topic
 func (s *Stat) Subscribe(topic string) {
 	s.Lock()
 	defer s.Unlock()
-	s.topicSubscribers[topic] ++
+	s.topicSubscribers[topic]++
 }
 
 //Get will create a replication of Stat at current time point
-func (s *Stat) Get() *Stat{
+func (s *Stat) Get() *Stat {
 	res := NewStat()
 	s.RLock()
 	defer s.RUnlock()

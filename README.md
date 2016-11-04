@@ -20,7 +20,7 @@ git get -u github.com/buptmiao/msgo
 
 *   Support REST API, which is used to deliver messages and monitor the runtime statistics of msgo. Msgo exports the metrics as [prometheus](https://prometheus.io/) expected, that means we can collect the metrics into [prometheus](https://prometheus.io/), and monitor the state of msgo.
 
-*   Msgo support two kind of message type: persist and non-persist, with non-persist type, messages are stored in memory, and with persist type, messages are stored into disk. Msgo support two kinds of persistence strategy, [Boltdb](https://github.com/boltdb/bolt) and customized AOF storage which is inspired by redis aof.
+*   Msgo supports two kind of message type: persist and non-persist, with non-persist type, messages are stored in memory, and with persist type, messages are stored into disk. Msgo supports two kinds of persistence strategy, [Boltdb](https://github.com/boltdb/bolt) and customized AOF storage which is inspired by redis aof.
  
 ## How to use
 

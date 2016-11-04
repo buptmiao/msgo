@@ -19,8 +19,8 @@ type Broker struct {
 
 	stable Storage
 
-	status int
-	stat *Stat
+	status  int
+	stat    *Stat
 	topicMu sync.RWMutex
 	topics  map[string]*TopicQueue
 }
