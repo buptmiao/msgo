@@ -13,3 +13,10 @@ func TestPanicIfErr(t *testing.T) {
 		broker.PanicIfErr(errors.New("test"))
 	}()
 }
+
+func TestGetLocalIP(t *testing.T) {
+	ip := broker.GetLocalIP()
+	if ip == "" {
+		panic("get local IP address failed")
+	}
+}

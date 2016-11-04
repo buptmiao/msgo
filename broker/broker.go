@@ -20,7 +20,7 @@ type Broker struct {
 	stable Storage
 
 	status int
-
+	stat *Stat
 	topicMu sync.RWMutex
 	topics  map[string]*TopicQueue
 }
@@ -49,6 +49,7 @@ func NewBroker() {
 	PanicIfErr(err)
 
 	broker.status = STOP
+	broker.stat = NewStat()
 	broker.topics = make(map[string]*TopicQueue)
 
 	if Config.Aof != "" {
@@ -139,4 +140,9 @@ func (b *Broker) Replay() {
 		topic := b.Get(m.GetTopic())
 		topic.Push(m)
 	}
+}
+
+//Stat returns a Stat replication
+func (b *Broker) Stat() *Stat {
+	return b.stat.Get()
 }

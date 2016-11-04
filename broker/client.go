@@ -98,6 +98,7 @@ func (c *Client) handleSubscribe(m *msg.Message) {
 		topic := c.broker.Get(m.GetTopic())
 		sub = newsubscribe(topic, c, m.GetFilter(), m.GetCount(), m.GetNeedAck())
 		c.subscribes[m.GetTopic()] = sub
+		c.broker.stat.Subscribe(m.GetTopic())
 	} else {
 		Debug.Printf("%v update topic %s\n", c.conn.RemoteAddr(), m.GetTopic())
 		sub.update(m.GetFilter(), m.GetCount())

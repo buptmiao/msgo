@@ -101,6 +101,7 @@ func (t *TopicQueue) Unbind(s *subscribe) {
 
 //Push msg
 func (t *TopicQueue) Push(m *msg.Message) {
+	t.broker.stat.Add(t.topic, 1)
 	t.buf.PushBack(m)
 }
 

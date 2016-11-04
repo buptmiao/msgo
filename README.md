@@ -18,12 +18,35 @@ git get -u github.com/buptmiao/msgo
 
 *   Support batch messages pub/sub, producer can publish multiple messages at a time. The broker can compose messages from different producer into a batch package, and deliver them to a subscriber at a time.
 
-*   Support REST API, which is used to deliver messages and monitor the runtime statistics of msgo. Msgo exports the metrics as prometheus expected, that means we can collect the metrics into prometheus, and monitor the state of msgo.
+*   Support REST API, which is used to deliver messages and monitor the runtime statistics of msgo. Msgo exports the metrics as [prometheus](https://prometheus.io/) expected, that means we can collect the metrics into [prometheus](https://prometheus.io/), and monitor the state of msgo.
 
-
+*   Msgo support two kind of message type: persist and non-persist, with non-persist type, messages are stored in memory, and with persist type, messages are stored into disk. Msgo support two kinds of persistence strategy, [Boltdb](https://github.com/boltdb/bolt) and customized AOF storage which is inspired by redis aof.
+ 
 ## How to use
 
-Please see the [demo](https://github.com/buptmiao/msgo/tree/master/examples/demo).
+#### subscribe a topic with a filter
+```go
+consumer := client.NewConsumer(addr)  //addr is the address of broker, eg: localhost:13001
+consumer.Subscribe("msgo", "filter", func(m ...*msg.Message) error {
+    for _, v := range m {
+        fmt.Println(string(v.GetBody()))
+    }
+    return nil
+})
+```
+
+#### publish a message
+
+```go
+producer := client.NewProducer(addr)
+_ = producer.PublishFanout("msgo", "filter", []byte("hello world"))
+
+```
+
+then the subscriber will received a message "hello world".
+
+
+Please see the [demo](https://github.com/buptmiao/msgo/tree/master/examples/demo) for details.
 
 
 ## More updates

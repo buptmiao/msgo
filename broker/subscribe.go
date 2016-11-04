@@ -103,6 +103,7 @@ func (s *subscribe) sendMsg(msgs []*msg.Message) {
 			select {
 			case <-s.ack:
 				//todo delete msg.
+				s.topic.broker.stat.Success(s.topic.topic, int64(len(msgs)))
 				Debug.Println("recv ack")
 				return
 			case <-time.After(time.Second * 5):
