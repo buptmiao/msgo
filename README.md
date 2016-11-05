@@ -3,7 +3,7 @@
 [![Build Status](https://travis-ci.org/buptmiao/msgo.svg?branch=master)](https://travis-ci.org/buptmiao/msgo)
 [![Coverage Status](https://coveralls.io/repos/github/buptmiao/msgo/badge.svg?branch=master)](https://coveralls.io/github/buptmiao/msgo?branch=master)
 [![Go Report Card](https://goreportcard.com/badge/github.com/buptmiao/msgo)](https://goreportcard.com/report/github.com/buptmiao/msgo)
-![License](https://img.shields.io/dub/l/vibe-d.svg)
+[![Docker Repository on Quay](https://quay.io/repository/buptmiao/msgo/status "Docker Repository on Quay")](https://quay.io/repository/buptmiao/msgo)
 
 
 A distributed high performance message middleware, based on pub/sub model.
@@ -48,5 +48,10 @@ then the subscriber will received a message "hello world".
 
 Please see the [demo](https://github.com/buptmiao/msgo/tree/master/examples/demo) for details.
 
+## Docker
+```
+docker pull buptmiao/msgo
+docker run --name broker -p 13000:13000 -p 13001:13001 buptmiao/msgo
+```
 
 ## More updates
