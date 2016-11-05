@@ -14,7 +14,9 @@
 [submodule "vendor/github.com/golang/protobuf"]
          path = vendor/github.com/golang/protobuf
          url = https://github.com/golang/protobuf
-
+[submodule "vendor/github.com/matttproud/golang_protobuf_extensions"]
+         path = vendor/github.com/matttproud/golang_protobuf_extensions
+         url = https://github.com/matttproud/golang_protobuf_extensions
 [submodule "vendor/github.com/prometheus/client_golang"]
          path = vendor/github.com/prometheus/client_golang
          url = https://github.com/prometheus/client_golang
