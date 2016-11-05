@@ -13,6 +13,6 @@ func TestExporter_Collect(t *testing.T) {
 
 	exporter := broker.NewExporter("msgo", "123")
 
-	exporter.Scrape(stat)
+	exporter.Scrape(stat.Get())
 }
 
