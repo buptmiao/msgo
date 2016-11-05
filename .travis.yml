@@ -8,7 +8,6 @@ go:
   - tip
 
 install:
-  - go get -u  github.com/buptmiao/msgo/broker
   - go get golang.org/x/tools/cmd/cover
   - go get github.com/mattn/goveralls
 
