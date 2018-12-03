@@ -87,6 +87,7 @@ func (e *Exporter) Collect(ch chan<- prometheus.Metric) {
 	e.topicSubscribers.Collect(ch)
 }
 
+// Scrape set the metrics value to gauge
 func (e *Exporter) Scrape(stat *Stat) {
 	now := time.Now().UnixNano()
 	elapsed := float64(now-stat.startTime) / float64(time.Second)

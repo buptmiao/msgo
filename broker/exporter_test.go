@@ -1,8 +1,8 @@
 package broker_test
 
 import (
-	"testing"
 	"github.com/buptmiao/msgo/broker"
+	"testing"
 )
 
 func TestExporter_Collect(t *testing.T) {
@@ -15,4 +15,3 @@ func TestExporter_Collect(t *testing.T) {
 
 	exporter.Scrape(stat.Get())
 }
-
