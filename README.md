@@ -6,7 +6,7 @@
 [![Docker Repository on Quay](https://quay.io/repository/buptmiao/msgo/status "Docker Repository on Quay")](https://quay.io/repository/buptmiao/msgo)
 
 
-A distributed high performance message middleware, based on pub/sub model.
+A high performance message middleware, based on pub/sub model.
 
 ## Install
 ```
